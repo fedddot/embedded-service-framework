@@ -3,53 +3,36 @@ workspace "Name" "Description" {
     !identifiers hierarchical
 
     model {
-        u = person "User"
-        ss = softwareSystem "Software System" {
-            wa = container "Web Application"
-            db = container "Database Schema" {
-                tags "Database"
+        client = softwareSystem "Client"
+        embedded_service = softwareSystem "Embedded Service" {
+            host = container "Host" {
+                description "Runs the IPC server and the Service instance"
+                ipc_server = component "IPC Server" {
+                    description "Maintains the IPC communication channel with the Client."
+                }
+                service = component "Service" {
+                    description "Processes the API request in an infrastructure-agnostic way, all the low-level dependencies are injected on the instantiation step."
+                }
+                ipc_server -> service "Invokes Service"
             }
         }
-
-        u -> ss.wa "Uses"
-        ss.wa -> ss.db "Reads from and writes to"
+        client -> embedded_service.host.ipc_server "Sends API Request"
     }
 
     views {
-        systemContext ss "Diagram1" {
+        systemContext embedded_service "Embedded_Service" {
             include *
             autolayout lr
         }
 
-        container ss "Diagram2" {
+        container embedded_service "Embedded_Service_Container" {
             include *
             autolayout lr
         }
 
-        styles {
-            element "Element" {
-                color #d9232b
-                stroke #d9232b
-                strokeWidth 7
-                shape roundedbox
-            }
-            element "Person" {
-                shape person
-            }
-            element "Database" {
-                shape cylinder
-            }
-            element "Boundary" {
-                strokeWidth 5
-            }
-            relationship "Relationship" {
-                thickness 4
-            }
+        component embedded_service.host "Embedded_Service_Host" {
+            include *
+            autolayout lr
         }
     }
-
-    configuration {
-        scope softwaresystem
-    }
-
 }
