@@ -6,8 +6,8 @@
 #include <optional>
 #include <stdexcept>
 
-#include "ipc_data_reader.hpp"
-#include "ipc_data_writer.hpp"
+#include "data_reader.hpp"
+#include "data_writer.hpp"
 #include "service.hpp"
 
 namespace host {

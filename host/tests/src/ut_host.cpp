@@ -7,8 +7,8 @@
 
 #include "host.hpp"
 #include "test_service.hpp"
-#include "test_ipc_data_reader.hpp"
-#include "test_ipc_data_writer.hpp"
+#include "test_data_reader.hpp"
+#include "test_data_writer.hpp"
 
 using namespace service;
 using namespace host;
@@ -20,12 +20,12 @@ using TestHost = Host<ApiRequest, ApiResponse>;
 
 TEST(ut_host, ctor_dtor_sanity) {
 	// GIVEN
-	const auto ipc_data_reader = TestDataReader<std::optional<ApiRequest>(void)>(
+	const auto data_reader = TestDataReader<std::optional<ApiRequest>(void)>(
 		[](void) -> std::optional<ApiRequest> {
 			throw std::runtime_error("NOT IMPLEMENTED");
 		}
 	);
-	const auto ipc_data_writer = TestIpcDataWriter<ApiResponse>(
+	const auto data_writer = TestIpcDataWriter<ApiResponse>(
 		[](const ApiResponse&){
 			throw std::runtime_error("NOT IMPLEMENTED");
 		}
@@ -42,8 +42,8 @@ TEST(ut_host, ctor_dtor_sanity) {
 	THEN:
 	ASSERT_NO_THROW(
 		instance = new TestHost(
-			&ipc_data_reader,
-			&ipc_data_writer,
+			&data_reader,
+			&data_writer,
 			[](const std::exception& e) -> ApiResponse {
 				throw std::runtime_error("NOT IMPLEMENTED");
 			},
@@ -59,12 +59,12 @@ TEST(ut_host, run_once_sanity) {
 	// GIVEN
 	const auto test_api_request = ApiRequest("test_request");
 	const auto test_api_response = ApiResponse(12);
-	const auto ipc_data_reader = TestDataReader<std::optional<ApiRequest>(void)>(
+	const auto data_reader = TestDataReader<std::optional<ApiRequest>(void)>(
 		[test_api_request](void) -> std::optional<ApiRequest> {
 			return test_api_request;
 		}
 	);
-	const auto ipc_data_writer = TestIpcDataWriter<ApiResponse>(
+	const auto data_writer = TestIpcDataWriter<ApiResponse>(
 		[test_api_response](const ApiResponse& response){
 			ASSERT_EQ(test_api_response, response);
 		}
@@ -77,8 +77,8 @@ TEST(ut_host, run_once_sanity) {
 
 	// WHEN:
 	TestHost instance(
-		&ipc_data_reader,
-		&ipc_data_writer,
+		&data_reader,
+		&data_writer,
 		[](const std::exception& e) -> ApiResponse {
 			throw std::runtime_error("NOT IMPLEMENTED");
 		},

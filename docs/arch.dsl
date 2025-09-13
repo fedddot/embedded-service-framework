@@ -8,11 +8,11 @@ workspace "Embedded Service Framework" {
                     description "Aggregates the references of a Service and IPC Reader/Writer. Facades the IPC communication and service invocation into an event loop embeddable structure: provides a run_once() method performing: 1. Reading from IPC channel, 2. Invoking the service, 3. Writing into the IPC channel."
                     tags "host"
                 }
-                ipc_data_reader = component "IPC Data Reader" {
+                data_reader = component "IPC Data Reader" {
                     description "Reads an API request from the IPC channel if received, deserializes it and returns to the caller."
                     tags "ipc"
                 }
-                ipc_data_writer = component "IPC Data Writer" {
+                data_writer = component "IPC Data Writer" {
                     description "Serializes the API response and writes it to the IPC channel."
                     tags "ipc"
                 }
@@ -24,10 +24,10 @@ workspace "Embedded Service Framework" {
                     description "A collection of interfaces definitions for the Providers which can be used by any Service with no regard to the actual service functionality (e. g. Logger, Display, Storage, etc.)"
                     tags "provider"
                 }
-                host -> ipc_data_reader "Uses to read API request"
+                host -> data_reader "Uses to read API request"
                 host -> service "Uses to process API request"
                 service -> provider "Uses to access the infrastructure"
-                host -> ipc_data_writer "Uses to write API response"
+                host -> data_writer "Uses to write API response"
             }
 
             embedded_service_app = container "Embedded Service Application" {
