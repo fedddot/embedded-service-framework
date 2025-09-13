@@ -8,5 +8,4 @@ target_link_libraries(
     service
 )
 
-# add_subdirectory(tools)
 add_subdirectory(tests EXCLUDE_FROM_ALL)
