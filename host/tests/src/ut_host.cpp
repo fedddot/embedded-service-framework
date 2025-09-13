@@ -4,11 +4,12 @@
 #include <string>
 
 #include "gtest/gtest.h"
+#include "gmock/gmock.h"
 
 #include "host.hpp"
-#include "test_service.hpp"
-#include "test_data_reader.hpp"
-#include "test_data_writer.hpp"
+#include "service.hpp"
+#include "data_reader.hpp"
+#include "data_writer.hpp"
 
 using namespace service;
 using namespace host;
@@ -18,23 +19,26 @@ using ApiRequest = std::string;
 using ApiResponse = int;
 using TestHost = Host<ApiRequest, ApiResponse>;
 
+class MockDataReader : public TestHost::ApiRequestReader {
+public:
+    MOCK_METHOD(std::optional<ApiRequest>, read, (), (override));
+};
+
+class MockDataWriter : public TestHost::ApiResponseWriter {
+public:
+    MOCK_METHOD(void, write, (const ApiResponse&), (override));
+};
+
+class MockService : public Service<ApiRequest, ApiResponse> {
+public:
+    MOCK_METHOD(ApiResponse, run_api_request, (const ApiRequest&), (override));
+};
+
 TEST(ut_host, ctor_dtor_sanity) {
 	// GIVEN
-	const auto data_reader = TestDataReader<std::optional<ApiRequest>(void)>(
-		[](void) -> std::optional<ApiRequest> {
-			throw std::runtime_error("NOT IMPLEMENTED");
-		}
-	);
-	const auto data_writer = TestIpcDataWriter<ApiResponse>(
-		[](const ApiResponse&){
-			throw std::runtime_error("NOT IMPLEMENTED");
-		}
-	);
-	auto service = TestService<ApiRequest, ApiResponse>(
-		[](const ApiRequest&) -> ApiResponse {
-			throw std::runtime_error("NOT IMPLEMENTED");
-		}
-	);
+	MockDataReader data_reader;
+	MockDataWriter data_writer;
+	MockService service;
 
 	// WHEN:
 	TestHost *instance(nullptr);
@@ -44,10 +48,10 @@ TEST(ut_host, ctor_dtor_sanity) {
 		instance = new TestHost(
 			&data_reader,
 			&data_writer,
+			&service,
 			[](const std::exception& e) -> ApiResponse {
 				throw std::runtime_error("NOT IMPLEMENTED");
-			},
-			&service
+			}
 		)
 	);
 	
