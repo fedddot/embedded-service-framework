@@ -7,9 +7,6 @@
 #include "gmock/gmock.h"
 
 #include "host.hpp"
-#include "service.hpp"
-#include "data_reader.hpp"
-#include "data_writer.hpp"
 
 using namespace service;
 using namespace host;
@@ -29,7 +26,7 @@ public:
     MOCK_METHOD(void, write, (const ApiResponse&), (override));
 };
 
-class MockService : public Service<ApiRequest, ApiResponse> {
+class MockService : public TestHost::Service {
 public:
     MOCK_METHOD(ApiResponse, run_api_request, (const ApiRequest&), (override));
 };
@@ -60,35 +57,30 @@ TEST(ut_host, ctor_dtor_sanity) {
 }
 
 TEST(ut_host, run_once_sanity) {
-	// GIVEN
-	const auto test_api_request = ApiRequest("test_request");
-	const auto test_api_response = ApiResponse(12);
-	const auto data_reader = TestDataReader<std::optional<ApiRequest>(void)>(
-		[test_api_request](void) -> std::optional<ApiRequest> {
-			return test_api_request;
-		}
-	);
-	const auto data_writer = TestIpcDataWriter<ApiResponse>(
-		[test_api_response](const ApiResponse& response){
-			ASSERT_EQ(test_api_response, response);
-		}
-	);
-	auto service = TestService<ApiRequest, ApiResponse>(
-		[test_api_response](const ApiRequest&) -> ApiResponse {
-			return ApiResponse(test_api_response);
-		}
-	);
+    // GIVEN
+    const auto test_api_request = ApiRequest("test_request");
+    const auto test_api_response = ApiResponse(12);
 
-	// WHEN:
-	TestHost instance(
-		&data_reader,
-		&data_writer,
-		[](const std::exception& e) -> ApiResponse {
-			throw std::runtime_error("NOT IMPLEMENTED");
-		},
-		&service
-	);
+    auto data_reader = ::testing::NiceMock<MockDataReader>();
+    auto data_writer = ::testing::NiceMock<MockDataWriter>();
+    auto service = ::testing::NiceMock<MockService>();
 
-	// THEN:
-	ASSERT_NO_THROW(instance.run_once());
+    EXPECT_CALL(data_reader, read())
+        .WillOnce(::testing::Return(test_api_request));
+    EXPECT_CALL(service, run_api_request(test_api_request))
+        .WillOnce(::testing::Return(test_api_response));
+    EXPECT_CALL(data_writer, write(test_api_response))
+        .Times(1);
+
+    TestHost instance(
+        &data_reader,
+        &data_writer,
+        &service,
+        [](const std::exception& e) -> ApiResponse {
+            throw std::runtime_error("NOT IMPLEMENTED");
+        }
+    );
+
+    // THEN:
+    ASSERT_NO_THROW(instance.run_once());
 }

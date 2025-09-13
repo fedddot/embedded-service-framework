@@ -8,9 +8,6 @@ target_link_libraries(
 	host_tests
 	PRIVATE
     host
-    service
-	data_reader
-	data_writer
     gtest
 	gmock
 )
