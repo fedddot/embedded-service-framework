@@ -20,6 +20,10 @@ workspace "Embedded Service Framework" {
                     description "Processes the API request in an infrastructure-agnostic way, all the low-level dependencies are injected on the instantiation step."
                     tags "service"
                 }
+                provider = component "Provider" {
+                    description "A collection of interfaces definitions for the Providers which can be used by any Service with no regard to the actual service functionality (e. g. Logger, Display, Storage, etc.)"
+                    tags "provider"
+                }
                 host -> ipc_data_reader "Uses to read API request"
                 host -> service "Uses to process API request"
                 host -> ipc_data_writer "Uses to write API response"
@@ -37,20 +41,27 @@ workspace "Embedded Service Framework" {
                         description "A collection of interfaces definitions to abstract-out all the low-level infrastructures required by the Application Service (e.g. TempController, MotorDriver, etc.)"
                         tags "providers"
                     }
+                    app_service -> app_service_providers_interfaces "Uses"
                 }
                 group "App Infrastructure" {
                     app_service_providers = component "Application Service Providers" {
-                        description "A collection of interfaces injected into the Application Service on the instantiation step, providing all the required low-level functionality abstractions (e.g. GPIOs, Timers, Drivers, etc.)"
+                        description "A collection of implementations of the Application Service Providers Interfaces, abstracting-out the low-level infrastructure"
                         tags "providers"
                     }
                     app_ipc_reader = component "App-Specific IPC Reader" {
-                        description "Implements or instantiates an existing Framework IPC Reader"
+                        description "Implements or instantiates an existing Framework IPC Reader (e.g. UART, Ethernet, etc.)"
                         tags "ipc"
                     }
-                    app_ipc_writer = component "Example IPC Writer" {
-                        description "Implements or instantiates an existing Framework IPC Writer"
+                    app_ipc_writer = component "App-Specific IPC Writer" {
+                        description "Implements or instantiates an existing Framework IPC Writer (e.g. UART, Ethernet, etc.)"
                         tags "ipc"
                     }
+                }
+                app_service_providers -> app_service_providers_interfaces "Implements"
+                
+                app_host = component "Host Instantiation" {
+                    description "An instantiation of the Framework Host, injecting the Application Service and App-Specific IPC Reader/Writer"
+                    tags "host"
                 }
                 app_main = component "Application Entry Point" {
                     description "The entry point of the application, instantiates the Framework Host with the application-specific components and runs the event loop"
