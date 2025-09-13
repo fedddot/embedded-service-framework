@@ -26,64 +26,58 @@ workspace "Embedded Service Framework" {
                 }
                 host -> ipc_data_reader "Uses to read API request"
                 host -> service "Uses to process API request"
+                service -> provider "Uses to access the infrastructure"
                 host -> ipc_data_writer "Uses to write API response"
             }
 
-
             embedded_service_app = container "Embedded Service Application" {
                 description "A user application implementing some valuable logic using the Embedded Service Framework"
-                group "Service" {
-                    app_service = component "Application Service" {
-                        description "A package implementing the service API in a platform-agnostic way. All the low-level deps are represented with abstract interfaces (part of the package API) and are injected on the initialization (construction) step."
-                        tags "service"
-                    }
-                    app_service_providers_interfaces = component "Application Service Providers Interfaces" {
-                        description "A collection of interfaces definitions to abstract-out all the low-level infrastructures required by the Application Service (e.g. TempController, MotorDriver, etc.)"
-                        tags "providers"
-                    }
-                    app_service -> app_service_providers_interfaces "Uses"
+                app_service = component "Application Service" {
+                    description "A package implementing the service API in a platform-agnostic way. All the low-level deps are represented with abstract interfaces (part of the package API) and are injected on the initialization (construction) step."
+                    tags "service"
                 }
-                group "App Infrastructure" {
-                    app_service_providers = component "Application Service Providers" {
-                        description "A collection of implementations of the Application Service Providers Interfaces, abstracting-out the low-level infrastructure"
-                        tags "providers"
-                    }
-                    app_ipc_reader = component "App-Specific IPC Reader" {
-                        description "Implements or instantiates an existing Framework IPC Reader (e.g. UART, Ethernet, etc.)"
-                        tags "ipc"
-                    }
-                    app_ipc_writer = component "App-Specific IPC Writer" {
-                        description "Implements or instantiates an existing Framework IPC Writer (e.g. UART, Ethernet, etc.)"
-                        tags "ipc"
-                    }
+                app_service_providers = component "Application Service Providers" {
+                    description "A collection of interfaces definitions to extend the Framework Providers with application-specific ones (e.g. Sensors, Actuators, etc.)"
+                    tags "provider"
                 }
-                app_service_providers -> app_service_providers_interfaces "Implements"
-                
-                app_host = component "Host Instantiation" {
-                    description "An instantiation of the Framework Host, injecting the Application Service and App-Specific IPC Reader/Writer"
-                    tags "host"
+                app_service -> app_service_providers "Uses"
+                app_service_providers_pl_impl = component "Application Service Providers Platform Implementations" {
+                    description "A collection of implementations of the Application Service Providers Interfaces for a specific platform (e.g. STM32, ESP32, Raspberry etc.)"
+                    tags "provider"
                 }
+                app_ipc_reader = component "App-Specific IPC Reader" {
+                    description "Implements or instantiates an existing Framework IPC Reader (e.g. UART, Ethernet, etc.)"
+                    tags "ipc"
+                }
+                app_ipc_writer = component "App-Specific IPC Writer" {
+                    description "Implements or instantiates an existing Framework IPC Writer (e.g. UART, Ethernet, etc.)"
+                    tags "ipc"
+                }
+                app_service_providers_pl_impl -> app_service_providers "Implements"
                 app_main = component "Application Entry Point" {
-                    description "The entry point of the application, instantiates the Framework Host with the application-specific components and runs the event loop"
+                    description "The entry point of the application, instantiates the Framework Host with all its dependencies (Service, IPC Reader/Writer) and runs it in a loop"
+                    tags "main"
                 }
                 app_main -> app_service "Instantiates"
-                app_service -> app_service_providers "Uses"
                 app_main -> app_ipc_reader "Instantiates"
                 app_main -> app_ipc_writer "Instantiates"
+                app_main -> app_service_providers_pl_impl "Instantiates"
+                app_main -> host "Instantiates, runs"
             }
         }
-        communication_peripherals = element "Communication Peripherals" {
-            description "A hardware peripherals providing IPC communication capabilities (e.g. UART, Ethernet, WiFi, Bluetooth, etc.)"
-            tags "mcu_peripheral"
+        group "MCU Platform" {
+            communication_peripherals = element "Communication Peripherals" {
+                description "A hardware peripherals providing IPC communication capabilities (e.g. UART, Ethernet, WiFi, Bluetooth, etc.)"
+                tags "mcu_peripheral"
+            }
+            platform_peripherals = element "Platform Peripherals" {
+                description "A hardware peripherals providing all required functionality to carry on the Busyness Logic defined in the Application Service (e.g. GPIOs, Timers, Drivers, etc.)"
+                tags "mcu_peripheral"
+            }
         }
-        platform_peripherals = element "Platform Peripherals" {
-            description "A hardware peripherals providing all required functionality to carry on the Busyness Logic defined in the Application Service (e.g. GPIOs, Timers, Drivers, etc.)"
-            tags "mcu_peripheral"
-        }
-        app_main -> host "Instantiates, runs"
         app_ipc_reader -> communication_peripherals "Reads from"
         app_ipc_writer -> communication_peripherals "Writes to"
-        app_service_providers -> platform_peripherals "Abstracts"
+        app_service_providers_pl_impl -> platform_peripherals "Controls"
         client -> communication_peripherals "Communicates with"
     }
 
@@ -104,7 +98,7 @@ workspace "Embedded Service Framework" {
         }
 
         component embedded_service_app "Embedded_Service_App_Components" {
-            include * client
+            include * client host
             autolayout tb
         }
 
