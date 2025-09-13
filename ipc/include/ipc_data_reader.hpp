@@ -2,14 +2,11 @@
 #define	DATA_READER_HPP
 
 namespace ipc {
-	template <typename Signature>
-	class DataReader;
-
-	template <typename Result, typename... Args>
-	class DataReader<Result(Args...)> {
+	template <typename Data>
+	class DataReader {
 	public:
 		virtual ~DataReader() noexcept = default;
-		virtual Result read(Args...) const = 0;
+		virtual Data read() = 0;
 	};
 }
 
