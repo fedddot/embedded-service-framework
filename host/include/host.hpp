@@ -17,12 +17,12 @@ namespace host {
 		using ApiRequestReader = ipc::DataReader<std::optional<ApiRequest>>;
 		using ApiResponseWriter = ipc::DataWriter<ApiResponse>;
 		using FailureReporter = std::function<ApiResponse(const std::exception&)>;
-		using ServiceInstance = service::Service<ApiRequest, ApiResponse>;
+		using Service = service::Service<ApiRequest, ApiResponse>;
 
 		Host(
 			ApiRequestReader *api_request_reader_ptr,
 			ApiResponseWriter *api_response_writer_ptr,
-			ServiceInstance *service_ptr,
+			Service *service_ptr,
 			const FailureReporter& failure_reporter
 		);
 		Host(const Host&) = default;
@@ -33,7 +33,7 @@ namespace host {
 	private:
 		ApiRequestReader *m_api_request_reader_ptr;
 		ApiResponseWriter *m_api_response_writer_ptr;
-		ServiceInstance *m_service_ptr;
+		Service *m_service_ptr;
 		FailureReporter m_failure_reporter;
 	};
 
@@ -41,7 +41,7 @@ namespace host {
 	inline Host<ApiRequest, ApiResponse>::Host(
 			ApiRequestReader *api_request_reader_ptr,
 			ApiResponseWriter *api_response_writer_ptr,
-			ServiceInstance *service_ptr,
+			Service *service_ptr,
 			const FailureReporter& failure_reporter
 	): m_api_request_reader_ptr(api_request_reader_ptr), m_api_response_writer_ptr(api_response_writer_ptr), m_service_ptr(service_ptr), m_failure_reporter(failure_reporter) {
 		if (!m_api_request_reader_ptr || !m_api_response_writer_ptr || !m_failure_reporter || !m_service_ptr) {
