@@ -16,7 +16,8 @@
 				"ms-vscode.cpptools",
 				"hediet.vscode-drawio",
 				"github.vscode-github-actions",
-				"GitHub.vscode-pull-request-github"
+				"GitHub.vscode-pull-request-github",
+				"systemticks.c4-dsl-extension"
 			],
 			"settings": {
 				"clangd.path": "/usr/lib/llvm-18/bin/clangd"
