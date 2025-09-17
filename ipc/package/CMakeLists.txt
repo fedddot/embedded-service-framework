@@ -1,3 +1,6 @@
+add_library(ipc_queue INTERFACE)
+target_include_directories(ipc_queue INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+
 add_library(ring_queue INTERFACE)
 target_include_directories(ring_queue INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 target_link_libraries(ring_queue INTERFACE ipc_queue)
@@ -11,7 +14,7 @@ target_include_directories(package_reader INTERFACE ${CMAKE_CURRENT_LIST_DIR}/in
 target_link_libraries(
     package_reader
     INTERFACE
-    ipc_data_reader
+    data_reader
     ipc_queue
 )
 
@@ -20,7 +23,7 @@ target_include_directories(package_writer INTERFACE ${CMAKE_CURRENT_LIST_DIR}/in
 target_link_libraries(
     package_writer
     INTERFACE
-    ipc_data_writer
+    data_writer
 )
 
 add_subdirectory(tests EXCLUDE_FROM_ALL)

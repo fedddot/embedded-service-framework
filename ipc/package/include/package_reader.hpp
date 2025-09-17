@@ -9,11 +9,11 @@
 #include <vector>
 
 #include "ipc_queue.hpp"
-#include "ipc_data_reader.hpp"
+#include "data_reader.hpp"
 
 namespace ipc {
 	template <std::size_t HSIZE>
-	class PackageReader: public DataReader<std::optional<std::vector<std::uint8_t>>(void)> {
+	class PackageReader: public DataReader<std::optional<std::vector<std::uint8_t>>> {
 	public:
 		using SizeRetriever = std::function<std::size_t(const IpcQueue<std::uint8_t>&)>;
 		PackageReader(
@@ -26,7 +26,7 @@ namespace ipc {
 		}
 		PackageReader(const PackageReader&) = default;
 		PackageReader& operator=(const PackageReader&) = default;
-		std::optional<std::vector<std::uint8_t>> read() const override {
+		std::optional<std::vector<std::uint8_t>> read() override {
 			try {
 				if (m_queue_ptr->size() < HSIZE) {
 					return std::nullopt;

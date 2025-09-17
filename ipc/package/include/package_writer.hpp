@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <vector>
 
-#include "ipc_data_writer.hpp"
+#include "data_writer.hpp"
 
 namespace ipc {
 	template <std::size_t HSIZE>
@@ -25,7 +25,7 @@ namespace ipc {
 		}
 		PackageWriter(const PackageWriter&) = default;
 		PackageWriter& operator=(const PackageWriter&) = default;
-		void write(const std::vector<std::uint8_t>& payload) const override {
+		void write(const std::vector<std::uint8_t>& payload) override {
 			const auto header = m_header_generator(payload, HSIZE);
 			if (header.size() != HSIZE) {
 				throw std::invalid_argument("generated header has invalid size");

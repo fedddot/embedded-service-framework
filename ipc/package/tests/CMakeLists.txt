@@ -9,8 +9,6 @@ target_link_libraries(
 	PRIVATE
 	ring_queue
 	package_reader
-	api_request_reader
-	api_response_writer
 	package_utils
 	gtest
 	gtest_main
