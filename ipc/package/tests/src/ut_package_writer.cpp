@@ -1,6 +1,5 @@
 #include <cstddef>
 #include <cstdint>
-#include <optional>
 #include <string>
 #include <vector>
 
@@ -8,7 +7,6 @@
 
 #include "package_writer.hpp"
 #include "package_utils.hpp"
-#include "ring_queue.hpp"
 
 using namespace ipc;
 
@@ -17,9 +15,11 @@ using namespace ipc;
 
 TEST(ut_package_writer, ctor_dtor_sanity) {
 	// GIVEN
-	auto buff = RingQueue<std::uint8_t, RING_BUFF_SIZE>();
-	auto size_retriever = [](const IpcQueue<std::uint8_t>& queue) -> std::size_t {
-		throw std::runtime_error("size retriever not implemented");
+	const auto header_generator = [](const std::vector<std::uint8_t>&, const std::size_t&) -> std::vector<std::uint8_t> {
+		throw std::runtime_error("header generator not implemented");
+	};
+	const auto raw_data_writer = [](const std::vector<std::uint8_t>&) {
+		throw std::runtime_error("raw data writer not implemented");
 	};
 
 	// WHEN
@@ -29,8 +29,8 @@ TEST(ut_package_writer, ctor_dtor_sanity) {
 	// THEN
 	ASSERT_NO_THROW(
 		instance = new PackageWriter(
-			&buff,
-			size_retriever,
+			header_generator,
+			raw_data_writer,
 			HEADER_SIZE
 		)
 	);
@@ -38,46 +38,26 @@ TEST(ut_package_writer, ctor_dtor_sanity) {
 	instance = nullptr;
 }
 
-TEST(ut_package_writer, read_sanity) {
+TEST(ut_package_writer, write_sanity) {
 	// GIVEN
-	auto size_retriever = [](const IpcQueue<std::uint8_t>& queue) -> std::size_t {
-		const auto size_data = std::vector<std::uint8_t> {
-			queue.inspect(0),
-			queue.inspect(1),
-		};
-		return parse_package_size(size_data);
+	auto raw_data_buffer = std::vector<std::uint8_t>();
+	const auto header_generator = [](const std::vector<std::uint8_t>& payload, const std::size_t& header_size) -> std::vector<std::uint8_t> {
+		return serialize_package_size(payload.size(), header_size);
+	};
+	const auto raw_data_writer = [&raw_data_buffer](const std::vector<std::uint8_t>& raw_data) {
+		raw_data_buffer.insert(raw_data_buffer.end(), raw_data.begin(), raw_data.end());
 	};
 	
-	const auto msg_str = std::string("test_msg");
-	const auto msg_size_encoded = serialize_package_size(msg_str.size(), HEADER_SIZE);
+	const auto test_payload_str = std::string("test_payload");
 	
 	// WHEN
-	auto buff = RingQueue<std::uint8_t, RING_BUFF_SIZE>();
 	auto instance = PackageWriter(
-		&buff,
-		size_retriever,
+		header_generator,
+		raw_data_writer,
 		HEADER_SIZE
 	);
-	auto result = std::optional<std::vector<std::uint8_t>>();
 
 	// THEN
-	// empty buffer
-	ASSERT_NO_THROW(result = instance.read());
-	ASSERT_FALSE(result);
-
-	// add encoded message size
-	for (const auto& byte: msg_size_encoded) {
-		buff.enqueue(byte);
-	}
-	ASSERT_NO_THROW(result = instance.read());
-	ASSERT_FALSE(result);
-	
-	// add message
-	for (const auto& byte: msg_str) {
-		buff.enqueue(static_cast<std::uint8_t>(byte));
-	}
-	ASSERT_NO_THROW(result = instance.read());
-	ASSERT_TRUE(result);
-	ASSERT_EQ(msg_str, std::string(result->begin(), result->end()));
-	ASSERT_EQ(0UL, buff.size());
+	ASSERT_NO_THROW(instance.write(std::vector<std::uint8_t>(test_payload_str.begin(), test_payload_str.end())));
+	ASSERT_EQ(HEADER_SIZE + test_payload_str.size(), raw_data_buffer.size());
 }

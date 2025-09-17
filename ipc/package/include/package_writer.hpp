@@ -24,7 +24,7 @@ namespace ipc {
 			}
 		}
 		PackageWriter(const PackageWriter&) = default;
-		PackageWriter& operator=(const PackageWriter&) = default;
+		PackageWriter& operator=(const PackageWriter&) = delete;
 		void write(const std::vector<std::uint8_t>& payload) override {
 			const auto header = m_header_generator(payload, m_header_size);
 			if (header.size() != m_header_size) {
