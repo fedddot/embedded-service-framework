@@ -26,4 +26,4 @@ target_link_libraries(
     data_writer
 )
 
-add_subdirectory(tests EXCLUDE_FROM_ALL)
+add_subdirectory(tests)

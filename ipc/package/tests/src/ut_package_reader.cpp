@@ -23,14 +23,15 @@ TEST(ut_package_reader, ctor_dtor_sanity) {
 	};
 
 	// WHEN
-	PackageReader<HEADER_SIZE> *instance = nullptr;
+	PackageReader *instance = nullptr;
 
 
 	// THEN
 	ASSERT_NO_THROW(
-		instance = new PackageReader<HEADER_SIZE>(
+		instance = new PackageReader(
 			&buff,
-			size_retriever
+			size_retriever,
+			HEADER_SIZE
 		)
 	);
 	ASSERT_NO_THROW(delete instance);
@@ -52,9 +53,10 @@ TEST(ut_package_reader, read_sanity) {
 	
 	// WHEN
 	auto buff = RingQueue<std::uint8_t, RING_BUFF_SIZE>();
-	auto instance = PackageReader<HEADER_SIZE>(
+	auto instance = PackageReader(
 		&buff,
-		size_retriever
+		size_retriever,
+		HEADER_SIZE
 	);
 	auto result = std::optional<std::vector<std::uint8_t>>();
 
