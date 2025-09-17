@@ -3,10 +3,9 @@ target_include_directories(host INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 target_link_libraries(
     host
     INTERFACE
-    ipc_data_reader
-    ipc_data_writer
+    data_reader
+    data_writer
     service
 )
 
-# add_subdirectory(tools)
-add_subdirectory(tests EXCLUDE_FROM_ALL)
+add_subdirectory(tests)

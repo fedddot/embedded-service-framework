@@ -4,11 +4,12 @@ project(mcu_server C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_subdirectory(app)
+enable_testing()
+add_subdirectory(googletest EXCLUDE_FROM_ALL)
+
+add_subdirectory(provider)
 add_subdirectory(host)
-add_subdirectory(external)
 add_subdirectory(service)
 add_subdirectory(ipc)
