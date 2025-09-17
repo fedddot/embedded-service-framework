@@ -6,11 +6,10 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+enable_testing()
+add_subdirectory(googletest EXCLUDE_FROM_ALL)
 
 add_subdirectory(provider)
 add_subdirectory(host)
 add_subdirectory(service)
 add_subdirectory(ipc)
-
-enable_testing()
-add_subdirectory(googletest EXCLUDE_FROM_ALL)

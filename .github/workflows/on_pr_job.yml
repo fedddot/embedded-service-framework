@@ -6,7 +6,6 @@ on:
     branches: [ "main" ]
 
 env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Debug
 
 jobs:
@@ -23,12 +22,12 @@ jobs:
       run: |
         docker build --network=host -t mcu-server-dev:latest -f docker/dev.dockerfile .
 
-    - name: run uts
-      working-directory: ${{github.workspace}}/automation
-      run: |
-        docker run -i -v ${{github.workspace}}:/usr/app/src mcu-server-dev:latest python3 -u automation/run_ut_tests.py /usr/app/src
-    
-    - name: cleanup build artifacts
+    - name: cmake config
       working-directory: ${{github.workspace}}
       run: |
-        docker run -i -v ${{github.workspace}}:/usr/app/src mcu-server-dev:latest rm -rf build
+        docker run -i -v ${{github.workspace}}:/usr/app/src -v ${{github.workspace}}/bin:/usr/app/bin mcu-server-dev:latest cmake -S /usr/app/src -B /usr/app/bin
+    
+    - name: run uts
+      working-directory: ${{github.workspace}}
+      run: |
+        docker run -i -v ${{github.workspace}}:/usr/app/src -v ${{github.workspace}}/bin:/usr/app/bin mcu-server-dev:latest cmake --build /usr/app/bin --target test
