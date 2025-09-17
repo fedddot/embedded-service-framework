@@ -4,6 +4,8 @@ RUN apt-get update
 RUN apt-get install -y make gcc g++ gdb cmake
 RUN apt-get install -y git
 RUN apt-get install -y wget
+
+RUN apt-get install -y lsb-release gnupg software-properties-common
 RUN apt-get install -y locales
 
 RUN rm -rf /var/lib/apt/lists/* && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
