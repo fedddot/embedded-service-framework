@@ -11,3 +11,5 @@ target_link_libraries(
 	gmock
 	gtest_main
 )
+
+add_test(NAME host_tests COMMAND host_tests)
