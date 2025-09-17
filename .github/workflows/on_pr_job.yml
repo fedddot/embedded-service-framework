@@ -31,7 +31,7 @@ jobs:
       run: |
         docker run -i -v ${{github.workspace}}:/usr/app/src -v ${{github.workspace}}/bin:/usr/app/bin mcu-server-dev:latest cmake -DCMAKE_BUILD_TYPE=Debug -S /usr/app/src -B /usr/app/bin
     
-    - name: run uts
+    - name: build
       working-directory: ${{github.workspace}}
       run: |
         docker run -i -v ${{github.workspace}}:/usr/app/src -v ${{github.workspace}}/bin:/usr/app/bin mcu-server-dev:latest cmake --build /usr/app/bin
