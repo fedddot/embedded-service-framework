@@ -1,5 +1,5 @@
-#ifndef	IPC_QUEUE_HPP
-#define	IPC_QUEUE_HPP
+#ifndef	INPUT_STREAM_HPP
+#define	INPUT_STREAM_HPP
 
 #include <cstddef>
 
@@ -15,4 +15,4 @@ namespace ipc {
 	};
 }
 
-#endif // IPC_QUEUE_HPP
+#endif // INPUT_STREAM_HPP
