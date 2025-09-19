@@ -41,10 +41,12 @@ TEST(ut_api_response_writer, ctor_dtor_sanity) {
 TEST(ut_api_response_writer, write_sanity) {
 	// GIVEN
 	const auto api_response = ApiResponse("test_msg");
-	auto package_writer = MockPackageWriter();
+	auto package_writer = ::testing::NiceMock<MockPackageWriter>();
+    EXPECT_CALL(package_writer, write(::testing::_)).Times(1);
 	const auto response_serializer = [](const ApiResponse& response) -> std::vector<std::uint8_t> {
-		throw std::runtime_error("not implemented");
+		return std::vector<std::uint8_t>(response.begin(), response.end());
 	};
+
 	
 	// WHEN
 	ApiResponseWriter<ApiResponse> instance(
