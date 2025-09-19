@@ -8,7 +8,7 @@
 
 #include "package_reader.hpp"
 #include "package_utils.hpp"
-#include "ring_queue.hpp"
+#include "ring_buffer_input_stream.hpp"
 
 using namespace ipc;
 
