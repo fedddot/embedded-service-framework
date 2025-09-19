@@ -17,7 +17,7 @@ namespace ipc {
 		RingQueue(const RingQueue&) = delete;
 		RingQueue& operator=(const RingQueue&) = delete;
 
-		void enqueue(const T& elem) override {
+		void enqueue(const T& elem) {
 			if (m_size == N) {
 				throw std::overflow_error("buffer overflow");
 			}
@@ -43,7 +43,7 @@ namespace ipc {
 		std::size_t size() const override {
 			return m_size;
 		}
-		std::size_t capacity() const override {
+		std::size_t capacity() const {
 			return N;
 		}
 		void clear() override {
