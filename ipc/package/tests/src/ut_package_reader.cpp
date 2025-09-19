@@ -17,7 +17,7 @@ using namespace ipc;
 
 TEST(ut_package_reader, ctor_dtor_sanity) {
 	// GIVEN
-	auto buff = RingQueue<std::uint8_t, RING_BUFF_SIZE>();
+	auto buff = RingBufferInputStream<std::uint8_t, RING_BUFF_SIZE>();
 	auto size_retriever = [](const InputStream<std::uint8_t>& queue) -> std::size_t {
 		throw std::runtime_error("size retriever not implemented");
 	};
@@ -52,7 +52,7 @@ TEST(ut_package_reader, read_sanity) {
 	const auto msg_size_encoded = serialize_package_size(msg_str.size(), HEADER_SIZE);
 	
 	// WHEN
-	auto buff = RingQueue<std::uint8_t, RING_BUFF_SIZE>();
+	auto buff = RingBufferInputStream<std::uint8_t, RING_BUFF_SIZE>();
 	auto instance = PackageReader(
 		&buff,
 		size_retriever,

@@ -1,5 +1,5 @@
-#ifndef	RING_DATA_BUFFER_HPP
-#define	RING_DATA_BUFFER_HPP
+#ifndef	RING_BUFFER_INPUT_STREAM_HPP
+#define	RING_BUFFER_INPUT_STREAM_HPP
 
 #include <array>
 #include <cstddef>
@@ -9,13 +9,13 @@
 
 namespace ipc {
 	template <typename T, std::size_t N>
-	class RingQueue: public InputStream<T> {
+	class RingBufferInputStream: public InputStream<T> {
 	public:
-		RingQueue(): m_data{}, m_read_index(0), m_write_index(0), m_size(0) {
+		RingBufferInputStream(): m_data{}, m_read_index(0), m_write_index(0), m_size(0) {
 
 		}
-		RingQueue(const RingQueue&) = delete;
-		RingQueue& operator=(const RingQueue&) = delete;
+		RingBufferInputStream(const RingBufferInputStream&) = delete;
+		RingBufferInputStream& operator=(const RingBufferInputStream&) = delete;
 
 		void enqueue(const T& elem) {
 			if (m_size == N) {
@@ -63,4 +63,4 @@ namespace ipc {
 	};
 }
 
-#endif // RING_DATA_BUFFER_HPP
+#endif // RING_BUFFER_INPUT_STREAM_HPP
