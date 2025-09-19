@@ -13,3 +13,5 @@ target_link_libraries(
 	gmock
 	gtest_main
 )
+
+add_test(NAME ipc_api_tests COMMAND ipc_api_tests)
