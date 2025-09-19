@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <vector>
 
-#include "ipc_queue.hpp"
+#include "input_stream.hpp"
 #include "data_reader.hpp"
 
 namespace ipc {

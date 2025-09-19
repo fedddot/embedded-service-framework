@@ -1,9 +1,9 @@
-add_library(ipc_queue INTERFACE)
-target_include_directories(ipc_queue INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+add_library(input_stream INTERFACE)
+target_include_directories(input_stream INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 
 add_library(ring_queue INTERFACE)
 target_include_directories(ring_queue INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
-target_link_libraries(ring_queue INTERFACE ipc_queue)
+target_link_libraries(ring_queue INTERFACE input_stream)
 
 add_library(package_utils INTERFACE)
 target_sources(package_utils INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/package_utils.cpp)
@@ -15,7 +15,7 @@ target_link_libraries(
     package_reader
     INTERFACE
     data_reader
-    ipc_queue
+    input_stream
 )
 
 add_library(package_writer INTERFACE)

@@ -5,7 +5,7 @@
 #include <cstddef>
 #include <stdexcept>
 
-#include "ipc_queue.hpp"
+#include "input_stream.hpp"
 
 namespace ipc {
 	template <typename T, std::size_t N>
