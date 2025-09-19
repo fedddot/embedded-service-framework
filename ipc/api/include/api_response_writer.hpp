@@ -24,7 +24,7 @@ namespace ipc {
 		}
 		ApiResponseWriter(const ApiResponseWriter&) = default;
 		ApiResponseWriter& operator=(const ApiResponseWriter&) = delete;
-		void write(const ApiResponse& response) const override {
+		void write(const ApiResponse& response) override {
 			const auto package_data = m_response_serializer(response);
 			m_package_writer_ptr->write(package_data);
 		}

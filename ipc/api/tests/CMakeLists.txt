@@ -10,5 +10,6 @@ target_link_libraries(
 	api_request_reader
 	api_response_writer
 	gtest
+	gmock
 	gtest_main
 )
