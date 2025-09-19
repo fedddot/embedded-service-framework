@@ -11,7 +11,7 @@
 
 namespace ipc {
 	template <typename ApiRequest>
-	class ApiRequestReader: public DataReader<std::optional<ApiRequest>(void)> {
+	class ApiRequestReader: public DataReader<std::optional<ApiRequest>> {
 	public:
 		using PackageReader = DataReader<std::optional<std::vector<std::uint8_t>>>;
 		using ApiRequestParser = std::function<ApiRequest(const std::vector<std::uint8_t>&)>;
@@ -25,7 +25,7 @@ namespace ipc {
 		}
 		ApiRequestReader(const ApiRequestReader&) = default;
 		ApiRequestReader& operator=(const ApiRequestReader&) = delete;
-		std::optional<ApiRequest> read() const override {
+		std::optional<ApiRequest> read() override {
 			const auto package_data = m_package_reader_ptr->read();
 			if (!package_data) {
 				return std::nullopt;
