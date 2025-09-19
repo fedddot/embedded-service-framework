@@ -18,7 +18,7 @@ using namespace ipc;
 TEST(ut_package_reader, ctor_dtor_sanity) {
 	// GIVEN
 	auto buff = RingQueue<std::uint8_t, RING_BUFF_SIZE>();
-	auto size_retriever = [](const IpcQueue<std::uint8_t>& queue) -> std::size_t {
+	auto size_retriever = [](const InputStream<std::uint8_t>& queue) -> std::size_t {
 		throw std::runtime_error("size retriever not implemented");
 	};
 
@@ -40,7 +40,7 @@ TEST(ut_package_reader, ctor_dtor_sanity) {
 
 TEST(ut_package_reader, read_sanity) {
 	// GIVEN
-	auto size_retriever = [](const IpcQueue<std::uint8_t>& queue) -> std::size_t {
+	auto size_retriever = [](const InputStream<std::uint8_t>& queue) -> std::size_t {
 		const auto size_data = std::vector<std::uint8_t> {
 			queue.inspect(0),
 			queue.inspect(1),

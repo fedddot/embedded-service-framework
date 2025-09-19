@@ -9,7 +9,7 @@
 
 namespace ipc {
 	template <typename T, std::size_t N>
-	class RingQueue: public IpcQueue<T> {
+	class RingQueue: public InputStream<T> {
 	public:
 		RingQueue(): m_data{}, m_read_index(0), m_write_index(0), m_size(0) {
 
@@ -25,7 +25,7 @@ namespace ipc {
 			m_write_index = next_index(m_write_index);
 			++m_size;
 		}
-		T dequeue() override {
+		T read() override {
 			if (m_size == 0) {
 				throw std::runtime_error("buffer is empty");
 			}

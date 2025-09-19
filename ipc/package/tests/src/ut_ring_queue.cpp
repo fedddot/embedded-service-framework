@@ -25,10 +25,10 @@ TEST(ut_ring_queue, sanity) {
 	ASSERT_EQ(instance.size(), buff_size);
 	ASSERT_THROW(instance.enqueue('d'), std::overflow_error);
 	for (const auto& elem : test_data) {
-		const auto popped_elem = instance.dequeue();
+		const auto popped_elem = instance.read();
 		ASSERT_EQ(popped_elem, elem);
 		ASSERT_EQ(instance.size(), buff_size - (&elem - test_data) - 1);
 	}
 	ASSERT_EQ(instance.size(), 0UL);
-	ASSERT_THROW(instance.dequeue(), std::runtime_error);
+	ASSERT_THROW(instance.read(), std::runtime_error);
 }

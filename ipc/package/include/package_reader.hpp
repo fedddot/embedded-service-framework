@@ -14,9 +14,9 @@
 namespace ipc {
 	class PackageReader: public DataReader<std::optional<std::vector<std::uint8_t>>> {
 	public:
-		using SizeRetriever = std::function<std::size_t(const IpcQueue<std::uint8_t>&)>;
+		using SizeRetriever = std::function<std::size_t(const InputStream<std::uint8_t>&)>;
 		PackageReader(
-			IpcQueue<std::uint8_t> *queue_ptr,
+			InputStream<std::uint8_t> *queue_ptr,
 			const SizeRetriever& size_retriever,
 			const std::size_t& header_size
 		);
@@ -24,13 +24,13 @@ namespace ipc {
 		PackageReader& operator=(const PackageReader&) = delete;
 		std::optional<std::vector<std::uint8_t>> read() override;
 	private:
-		IpcQueue<std::uint8_t> *m_queue_ptr;
+		InputStream<std::uint8_t> *m_queue_ptr;
 		SizeRetriever m_size_retriever;
 		std::size_t m_header_size;
 	};
 
 	inline PackageReader::PackageReader(
-		IpcQueue<std::uint8_t> *queue_ptr,
+		InputStream<std::uint8_t> *queue_ptr,
 		const SizeRetriever& size_retriever,
 		const std::size_t& header_size
 	): m_queue_ptr(queue_ptr), m_size_retriever(size_retriever), m_header_size(header_size) {
@@ -54,7 +54,7 @@ namespace ipc {
 			}
 			auto bytes_to_discard = m_header_size + package_size;
 			while (bytes_to_discard) {
-				m_queue_ptr->dequeue();
+				m_queue_ptr->read();
 				--bytes_to_discard;
 			}
 			return package_data;
