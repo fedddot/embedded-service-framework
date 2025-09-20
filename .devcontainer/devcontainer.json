@@ -18,7 +18,7 @@
 				"systemticks.c4-dsl-extension"
 			],
 			"settings": {
-				"clangd.path": "/usr/lib/llvm-18/bin/clangd"
+				"clangd.path": "/usr/bin/clangd"
 			}
 		}
 	},
