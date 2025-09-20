@@ -5,4 +5,4 @@ RUN apk add git make gcc g++ gdb cmake clang-extra-tools
 
 WORKDIR /usr/app/src
 
-# CMD ["/bin/bash", "-c"]
+ENTRYPOINT ["sh"]
