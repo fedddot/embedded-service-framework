@@ -1,4 +1,4 @@
-FROM debian:bookworm-slim AS base_image
+FROM alpine:latest AS base_image
 
 RUN apt-get update
 RUN apt-get install -y make gcc g++ gdb cmake

@@ -1,0 +1,10 @@
+services:
+  framework-dev:
+    image: framework-dev-image
+    build:
+      context: ..
+      dockerfile: ./docker/dev.dockerfile
+      network: host
+    tty: true
+    volumes:
+      - ..:/usr/app/src
