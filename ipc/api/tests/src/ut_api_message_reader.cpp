@@ -11,7 +11,7 @@
 
 using namespace ipc;
 
-using ApiRequest = std::string;
+using ApiMessage = std::string;
 
 class MockPackageReader : public DataReader<std::optional<std::vector<std::uint8_t>>> {
 public:
@@ -21,17 +21,17 @@ public:
 TEST(ut_api_message_reader, ctor_dtor_sanity) {
 	// GIVEN
 	auto package_reader = MockPackageReader();
-	const auto request_parser = [](const std::vector<std::uint8_t>& data) -> ApiRequest {
+	const auto request_parser = [](const std::vector<std::uint8_t>& data) -> ApiMessage {
 		throw std::runtime_error("request parser not implemented");
 	};
 
 	// WHEN
-	ApiMessageReader<ApiRequest> *instance = nullptr;
+	ApiMessageReader<ApiMessage> *instance = nullptr;
 
 
 	// THEN
 	ASSERT_NO_THROW(
-		instance = new ApiMessageReader<ApiRequest>(
+		instance = new ApiMessageReader<ApiMessage>(
 			&package_reader,
 			request_parser
 		)
@@ -42,23 +42,23 @@ TEST(ut_api_message_reader, ctor_dtor_sanity) {
 
 TEST(ut_api_message_reader, read_sanity) {
 	// GIVEN
-	const auto test_api_request = ApiRequest("test_msg");
+	const auto test_api_message = ApiMessage("test_msg");
 	auto package_reader = ::testing::NiceMock<MockPackageReader>();
     EXPECT_CALL(package_reader, read())
-        .WillOnce(::testing::Return(std::vector<std::uint8_t>(test_api_request.begin(), test_api_request.end())));
-	const auto request_parser = [](const std::vector<std::uint8_t>& data) -> ApiRequest {
-		return ApiRequest(data.begin(), data.end());
+        .WillOnce(::testing::Return(std::vector<std::uint8_t>(test_api_message.begin(), test_api_message.end())));
+	const auto request_parser = [](const std::vector<std::uint8_t>& data) -> ApiMessage {
+		return ApiMessage(data.begin(), data.end());
 	};
 	
 	// WHEN
-	ApiMessageReader<ApiRequest> instance(
+	ApiMessageReader<ApiMessage> instance(
 		&package_reader,
 		request_parser
 	);
-	auto result = std::optional<ApiRequest>();
+	auto result = std::optional<ApiMessage>();
 
 	// THEN
 	ASSERT_NO_THROW(result = instance.read());
 	ASSERT_TRUE(result.has_value());
-	ASSERT_EQ(*result, test_api_request);
+	ASSERT_EQ(*result, test_api_message);
 }
