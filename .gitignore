@@ -3,6 +3,7 @@
 build
 !.devcontainer
 !.gitignore
+!.gitmodules
 !.github
 !*.dockerfile
 !*.json
