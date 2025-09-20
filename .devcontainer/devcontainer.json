@@ -1,8 +1,7 @@
 {
-	"name": "mcu-server-dev-container",
-	"image": "mcu-server-dev:latest",
+"dockerComposeFile": "../docker/compose.yml",
+    "service": "esf-dev",
 	"privileged": true,
-	"runArgs": [ "--network=host" ],
 	"customizations": {
 		"vscode": {
 			"extensions": [
@@ -24,6 +23,5 @@
 			}
 		}
 	},
-	"workspaceMount": "source=${localWorkspaceFolder},target=/usr/app/src,type=bind",
 	"workspaceFolder": "/usr/app/src"
 }

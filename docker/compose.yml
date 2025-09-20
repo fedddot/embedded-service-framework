@@ -1,6 +1,8 @@
+name: embedded-service-framework
+
 services:
-  framework-dev:
-    image: framework-dev-image
+  esf-dev:
+    image: esf-dev-image
     build:
       context: ..
       dockerfile: ./docker/dev.dockerfile
