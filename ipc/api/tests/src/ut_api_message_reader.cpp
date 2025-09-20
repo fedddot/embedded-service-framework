@@ -21,8 +21,8 @@ public:
 TEST(ut_api_message_reader, ctor_dtor_sanity) {
 	// GIVEN
 	auto package_reader = MockPackageReader();
-	const auto request_parser = [](const std::vector<std::uint8_t>& data) -> ApiMessage {
-		throw std::runtime_error("request parser not implemented");
+	const auto message_parser = [](const std::vector<std::uint8_t>& data) -> ApiMessage {
+		throw std::runtime_error("message parser not implemented");
 	};
 
 	// WHEN
@@ -33,7 +33,7 @@ TEST(ut_api_message_reader, ctor_dtor_sanity) {
 	ASSERT_NO_THROW(
 		instance = new ApiMessageReader<ApiMessage>(
 			&package_reader,
-			request_parser
+			message_parser
 		)
 	);
 	ASSERT_NO_THROW(delete instance);
@@ -46,14 +46,14 @@ TEST(ut_api_message_reader, read_sanity) {
 	auto package_reader = ::testing::NiceMock<MockPackageReader>();
     EXPECT_CALL(package_reader, read())
         .WillOnce(::testing::Return(std::vector<std::uint8_t>(test_api_message.begin(), test_api_message.end())));
-	const auto request_parser = [](const std::vector<std::uint8_t>& data) -> ApiMessage {
+	const auto message_parser = [](const std::vector<std::uint8_t>& data) -> ApiMessage {
 		return ApiMessage(data.begin(), data.end());
 	};
 	
 	// WHEN
 	ApiMessageReader<ApiMessage> instance(
 		&package_reader,
-		request_parser
+		message_parser
 	);
 	auto result = std::optional<ApiMessage>();
 

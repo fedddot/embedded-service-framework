@@ -19,7 +19,7 @@ public:
 TEST(ut_api_message_writer, ctor_dtor_sanity) {
 	// GIVEN
 	auto package_writer = MockPackageWriter();
-	const auto response_serializer = [](const ApiMessage& response) -> std::vector<std::uint8_t> {
+	const auto message_serializer = [](const ApiMessage& message) -> std::vector<std::uint8_t> {
 		throw std::runtime_error("not implemented");
 	};
 
@@ -31,7 +31,7 @@ TEST(ut_api_message_writer, ctor_dtor_sanity) {
 	ASSERT_NO_THROW(
 		instance = new ApiMessageWriter<ApiMessage>(
 			&package_writer,
-			response_serializer
+			message_serializer
 		)
 	);
 	ASSERT_NO_THROW(delete instance);
@@ -43,15 +43,15 @@ TEST(ut_api_message_writer, write_sanity) {
 	const auto api_message = ApiMessage("test_msg");
 	auto package_writer = ::testing::NiceMock<MockPackageWriter>();
     EXPECT_CALL(package_writer, write(::testing::_)).Times(1);
-	const auto response_serializer = [](const ApiMessage& response) -> std::vector<std::uint8_t> {
-		return std::vector<std::uint8_t>(response.begin(), response.end());
+	const auto message_serializer = [](const ApiMessage& message) -> std::vector<std::uint8_t> {
+		return std::vector<std::uint8_t>(message.begin(), message.end());
 	};
 
 	
 	// WHEN
 	ApiMessageWriter<ApiMessage> instance(
 		&package_writer,
-		response_serializer
+		message_serializer
 	);
 
 	// THEN
