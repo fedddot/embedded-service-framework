@@ -1,0 +1,12 @@
+name: embedded-service-framework
+
+services:
+  esf-dev:
+    image: esf-dev-image
+    build:
+      context: ..
+      dockerfile: ./docker/dev.dockerfile
+      network: host
+    tty: true
+    volumes:
+      - ..:/usr/app/src

@@ -12,7 +12,7 @@ env:
 
 jobs:
   build:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
 
     steps:
     - name: checkout
@@ -26,19 +26,19 @@ jobs:
     - name: build dev image
       working-directory: ${{github.workspace}}
       run: |
-        docker build --network=host -t mcu-server-dev:latest -f docker/dev.dockerfile .
+        docker compose -f docker/compose.yml build esf-dev
 
     - name: cmake config
       working-directory: ${{github.workspace}}
       run: |
-        docker run -i -v ${{github.workspace}}:${{env.CONTAINER_SRC_DIR}} -v ${{github.workspace}}/bin:${{env.CONTAINER_BIN_DIR}} mcu-server-dev:latest cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -S ${{env.CONTAINER_SRC_DIR}} -B ${{env.CONTAINER_BIN_DIR}}
+        docker run -i -v ${{github.workspace}}:${{env.CONTAINER_SRC_DIR}} -v ${{github.workspace}}/bin:${{env.CONTAINER_BIN_DIR}} esf-dev-image:latest -c "cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -S ${{env.CONTAINER_SRC_DIR}} -B ${{env.CONTAINER_BIN_DIR}}"
     
     - name: build
       working-directory: ${{github.workspace}}
       run: |
-        docker run -i -v ${{github.workspace}}:${{env.CONTAINER_SRC_DIR}} -v ${{github.workspace}}/bin:${{env.CONTAINER_BIN_DIR}} mcu-server-dev:latest cmake --build ${{env.CONTAINER_BIN_DIR}}
+        docker run -i -v ${{github.workspace}}:${{env.CONTAINER_SRC_DIR}} -v ${{github.workspace}}/bin:${{env.CONTAINER_BIN_DIR}} esf-dev-image:latest -c "cmake --build ${{env.CONTAINER_BIN_DIR}}"
 
     - name: run uts
       working-directory: ${{github.workspace}}
       run: |
-        docker run -i -v ${{github.workspace}}:${{env.CONTAINER_SRC_DIR}} -v ${{github.workspace}}/bin:${{env.CONTAINER_BIN_DIR}} mcu-server-dev:latest cmake --build ${{env.CONTAINER_BIN_DIR}} --target test
+        docker run -i -v ${{github.workspace}}:${{env.CONTAINER_SRC_DIR}} -v ${{github.workspace}}/bin:${{env.CONTAINER_BIN_DIR}} esf-dev-image:latest -c "cmake --build ${{env.CONTAINER_BIN_DIR}} --target test"
