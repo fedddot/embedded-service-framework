@@ -6,7 +6,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "api_request_reader.hpp"
+#include "api_message_reader.hpp"
 #include "data_reader.hpp"
 
 using namespace ipc;
@@ -18,7 +18,7 @@ public:
     MOCK_METHOD(std::optional<std::vector<std::uint8_t>>, read, (), (override));
 };
 
-TEST(ut_api_request_reader, ctor_dtor_sanity) {
+TEST(ut_api_message_reader, ctor_dtor_sanity) {
 	// GIVEN
 	auto package_reader = MockPackageReader();
 	const auto request_parser = [](const std::vector<std::uint8_t>& data) -> ApiRequest {
@@ -26,12 +26,12 @@ TEST(ut_api_request_reader, ctor_dtor_sanity) {
 	};
 
 	// WHEN
-	ApiRequestReader<ApiRequest> *instance = nullptr;
+	ApiMessageReader<ApiRequest> *instance = nullptr;
 
 
 	// THEN
 	ASSERT_NO_THROW(
-		instance = new ApiRequestReader<ApiRequest>(
+		instance = new ApiMessageReader<ApiRequest>(
 			&package_reader,
 			request_parser
 		)
@@ -40,7 +40,7 @@ TEST(ut_api_request_reader, ctor_dtor_sanity) {
 	instance = nullptr;
 }
 
-TEST(ut_api_request_reader, read_sanity) {
+TEST(ut_api_message_reader, read_sanity) {
 	// GIVEN
 	const auto test_api_request = ApiRequest("test_msg");
 	auto package_reader = ::testing::NiceMock<MockPackageReader>();
@@ -51,7 +51,7 @@ TEST(ut_api_request_reader, read_sanity) {
 	};
 	
 	// WHEN
-	ApiRequestReader<ApiRequest> instance(
+	ApiMessageReader<ApiRequest> instance(
 		&package_reader,
 		request_parser
 	);

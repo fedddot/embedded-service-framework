@@ -20,7 +20,7 @@ namespace host {
 		using Service = service::Service<ApiRequest, ApiResponse>;
 
 		Host(
-			ApiRequestReader *api_request_reader_ptr,
+			ApiRequestReader *api_message_reader_ptr,
 			ApiResponseWriter *api_response_writer_ptr,
 			Service *service_ptr,
 			const FailureReporter& failure_reporter
@@ -31,7 +31,7 @@ namespace host {
 		
 		void run_once();
 	private:
-		ApiRequestReader *m_api_request_reader_ptr;
+		ApiRequestReader *m_api_message_reader_ptr;
 		ApiResponseWriter *m_api_response_writer_ptr;
 		Service *m_service_ptr;
 		FailureReporter m_failure_reporter;
@@ -39,12 +39,12 @@ namespace host {
 
 	template <typename ApiRequest, typename ApiResponse>
 	inline Host<ApiRequest, ApiResponse>::Host(
-			ApiRequestReader *api_request_reader_ptr,
+			ApiRequestReader *api_message_reader_ptr,
 			ApiResponseWriter *api_response_writer_ptr,
 			Service *service_ptr,
 			const FailureReporter& failure_reporter
-	): m_api_request_reader_ptr(api_request_reader_ptr), m_api_response_writer_ptr(api_response_writer_ptr), m_service_ptr(service_ptr), m_failure_reporter(failure_reporter) {
-		if (!m_api_request_reader_ptr || !m_api_response_writer_ptr || !m_failure_reporter || !m_service_ptr) {
+	): m_api_message_reader_ptr(api_message_reader_ptr), m_api_response_writer_ptr(api_response_writer_ptr), m_service_ptr(service_ptr), m_failure_reporter(failure_reporter) {
+		if (!m_api_message_reader_ptr || !m_api_response_writer_ptr || !m_failure_reporter || !m_service_ptr) {
 			throw std::invalid_argument("invalid args received in Host ctor");
 		}
 	}
@@ -52,7 +52,7 @@ namespace host {
 	template <typename ApiRequest, typename ApiResponse>
 	inline void Host<ApiRequest, ApiResponse>::run_once() {
 		try {
-			const auto request = m_api_request_reader_ptr->read();
+			const auto request = m_api_message_reader_ptr->read();
 			if (!request.has_value()) {
 				return;
 			}
