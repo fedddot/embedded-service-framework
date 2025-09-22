@@ -15,7 +15,8 @@
 				"hediet.vscode-drawio",
 				"github.vscode-github-actions",
 				"GitHub.vscode-pull-request-github",
-				"systemticks.c4-dsl-extension"
+				"systemticks.c4-dsl-extension",
+				"jebbs.plantuml"
 			],
 			"settings": {
 				"clangd.path": "/usr/bin/clangd"
