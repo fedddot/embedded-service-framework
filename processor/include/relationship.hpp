@@ -1,18 +1,34 @@
 #ifndef	RELATIONSHIP_HPP
 #define	RELATIONSHIP_HPP
 
+#include <functional>
+#include <memory>
 #include <stdexcept>
 
+#include "data_consumer.hpp"
+#include "data_producer.hpp"
 #include "queue.hpp"
 
 namespace processor {
-	template <typename Input, typename Output>
+	template <typename T>
 	class Relationship {
 	public:
-		using InputQueue = queue::Queue<Input>;
-		using OutputQueue = queue::Queue<Output>;
-		
-		Relationship() = default;
+		using DataQueueCtor = std::function<queue::Queue<T> *(void)>;
+		Relationship(
+			DataProducer<T> *data_producer_ptr,
+			DataConsumer<T> *data_consumer_ptr,
+			const DataQueueCtor& data_queue_ctor
+		): m_data_producer_ptr(data_producer_ptr), m_data_consumer_ptr(data_consumer_ptr), m_data_queue(nullptr) {
+			if (!m_data_producer_ptr || !m_data_consumer_ptr || !data_queue_ctor) {
+				throw std::invalid_argument("invalid args received");
+			}
+			m_data_queue.reset(data_queue_ctor());
+			if (!m_data_queue) {
+				throw std::runtime_error("data_queue_ctor failed to create a queue");
+			}
+			m_data_producer_ptr->set_output_queue(m_data_queue.get());
+			m_data_consumer_ptr->set_input_queue(m_data_queue.get());
+		}
 		Relationship(const Relationship&) = default;
 		Relationship& operator=(const Relationship&) = default;
 		
@@ -25,8 +41,9 @@ namespace processor {
 		InputQueue *input_queue() const;
 		OutputQueue *output_queue() const;
 	private:
-		InputQueue *m_input_queue_ptr;
-		OutputQueue *m_output_queue_ptr;
+		DataProducer<T> *m_data_producer_ptr;
+		DataConsumer<T> *m_data_consumer_ptr;
+		std::unique_ptr<queue::Queue<T>> m_data_queue;
 	};
 
 	template <typename Input, typename Output>

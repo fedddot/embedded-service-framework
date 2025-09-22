@@ -1,67 +1,12 @@
 #ifndef	PROCESSOR_HPP
 #define	PROCESSOR_HPP
 
-#include <stdexcept>
-
-#include "data_consumer.hpp"
-#include "data_producer.hpp"
-#include "queue.hpp"
-
 namespace processor {
-	template <typename Input, typename Output>
-	class Processor: public DataConsumer<Input>, public DataProducer<Output> {
+	class Processor {
 	public:
-		using InputQueue = queue::Queue<Input>;
-		using OutputQueue = queue::Queue<Output>;
-		
-		Processor() = default;
-		Processor(const Processor&) = default;
-		Processor& operator=(const Processor&) = default;
-		
 		virtual ~Processor() noexcept = default;
 		virtual void process() = 0;
-		
-		virtual void set_input_queue(InputQueue *input_queue_ptr) override;
-		virtual void set_output_queue(OutputQueue *output_queue_ptr) override;
-	protected:
-		virtual InputQueue *input_queue() const override;
-		virtual OutputQueue *output_queue() const override;
-	private:
-		InputQueue *m_input_queue_ptr;
-		OutputQueue *m_output_queue_ptr;
 	};
-
-	template <typename Input, typename Output>
-	inline void Processor<Input, Output>::set_input_queue(InputQueue *input_queue_ptr) {
-		if (!input_queue_ptr) {
-			throw std::invalid_argument("received null input_queue_ptr");
-		}
-		m_input_queue_ptr = input_queue_ptr;
-	}
-
-	template <typename Input, typename Output>
-	inline void Processor<Input, Output>::set_output_queue(OutputQueue *output_queue_ptr) {
-		if (!output_queue_ptr) {
-			throw std::invalid_argument("received null output_queue_ptr");
-		}
-		m_output_queue_ptr = output_queue_ptr;
-	}
-
-	template <typename Input, typename Output>
-	inline typename Processor<Input, Output>::InputQueue* Processor<Input, Output>::input_queue() const {
-		if (!m_input_queue_ptr) {
-			throw std::runtime_error("input_queue_ptr not set");
-		}
-		return m_input_queue_ptr;
-	}
-
-	template <typename Input, typename Output>
-	inline typename Processor<Input, Output>::OutputQueue* Processor<Input, Output>::output_queue() const {
-		if (!m_output_queue_ptr) {
-			throw std::runtime_error("output_queue_ptr not set");
-		}
-		return m_output_queue_ptr;
-	}
 }
 
 #endif // PROCESSOR_HPP
