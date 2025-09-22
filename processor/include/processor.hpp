@@ -47,11 +47,17 @@ namespace processor {
 
 	template <typename Input, typename Output>
 	inline typename Processor<Input, Output>::InputQueue* Processor<Input, Output>::input_queue() const {
+		if (!m_input_queue_ptr) {
+			throw std::runtime_error("input_queue_ptr not set");
+		}
 		return m_input_queue_ptr;
 	}
 
 	template <typename Input, typename Output>
 	inline typename Processor<Input, Output>::OutputQueue* Processor<Input, Output>::output_queue() const {
+		if (!m_output_queue_ptr) {
+			throw std::runtime_error("output_queue_ptr not set");
+		}
 		return m_output_queue_ptr;
 	}
 }

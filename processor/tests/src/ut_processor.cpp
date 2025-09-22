@@ -1,95 +1,54 @@
-#include <exception>
-#include <istream>
-#include <optional>
-#include <stdexcept>
-#include <streambuf>
 #include <string>
 
 #include "gtest/gtest.h"
-#include "gmock/gmock.h"
 
 #include "processor.hpp"
+#include "ring_queue.hpp"
 
-using namespace service;
 using namespace processor;
-using namespace ipc;
+using namespace queue;
 
-using ApiRequest = std::string;
-using ApiResponse = int;
-using TestHost = Host<ApiRequest, ApiResponse>;
+using Input = std::string;
+using Output = int;
 
-class MockDataReader : public TestHost::ApiRequestReader {
+class TestProcessor: public Processor<Input, Output> {
 public:
-    MOCK_METHOD(std::optional<ApiRequest>, read, (), (override));
-};
-
-class MockDataWriter : public TestHost::ApiResponseWriter {
-public:
-    MOCK_METHOD(void, write, (const ApiResponse&), (override));
-};
-
-class MockService : public TestHost::Service {
-public:
-    MOCK_METHOD(ApiResponse, run_api_request, (const ApiRequest&), (override));
-};
-
-TEST(ut_processor, ctor_dtor_sanity) {
-	// GIVEN
-	MockDataReader data_reader;
-	MockDataWriter data_writer;
-	MockService service;
-
-	// WHEN:
-	TestHost *instance(nullptr);
-
-	THEN:
-	ASSERT_NO_THROW(
-		instance = new TestHost(
-			&data_reader,
-			&data_writer,
-			&service,
-			[](const std::exception& e) -> ApiResponse {
-				throw std::runtime_error("NOT IMPLEMENTED");
-			}
-		)
-	);
-	
-	ASSERT_NO_THROW(delete instance);
-	instance = nullptr;
-
-}
-
-class MyStream: public std::istream {
-public:
-    MyStream(): std::istream(nullptr) {
+    TestProcessor(): Processor<Input, Output>() {}
+    void process() override {
+        if (0 == this->input_queue()->size()) {
+            return;
+        }
+        const auto input_message = this->input_queue()->dequeue();
+        const auto output_message = static_cast<Output>(std::stoi(input_message));
+        this->output_queue()->enqueue(output_message);
     }
 };
 
-TEST(ut_processor, run_once_sanity) {
-    // GIVEN
-    const auto test_api_request = ApiRequest("test_request");
-    const auto test_api_response = ApiResponse(12);
-
-    auto data_reader = ::testing::NiceMock<MockDataReader>();
-    auto data_writer = ::testing::NiceMock<MockDataWriter>();
-    auto service = ::testing::NiceMock<MockService>();
-
-    EXPECT_CALL(data_reader, read())
-        .WillOnce(::testing::Return(test_api_request));
-    EXPECT_CALL(service, run_api_request(test_api_request))
-        .WillOnce(::testing::Return(test_api_response));
-    EXPECT_CALL(data_writer, write(test_api_response))
-        .Times(1);
-
-    TestHost instance(
-        &data_reader,
-        &data_writer,
-        &service,
-        [](const std::exception& e) -> ApiResponse {
-            throw std::runtime_error("NOT IMPLEMENTED");
-        }
-    );
-
-    // THEN:
-    ASSERT_NO_THROW(instance.run_once());
+TEST(ut_processor, process_sanity) {
+	// GIVEN
+    const auto input_queue_size = 10UL;
+    const auto output_queue_size = 10UL;
+    const auto input_message = "42";
+    const auto expected_output_message = 42;
+    
+    // WHEN:
+	TestProcessor instance;
+	
+    RingQueue<Input, input_queue_size> input_queue;
+	RingQueue<Output, output_queue_size> output_queue;
+    ASSERT_NO_THROW(instance.set_input_queue(&input_queue));
+    ASSERT_NO_THROW(instance.set_output_queue(&output_queue));
+    
+	// THEN
+    // empty input queue, nothing to do
+    ASSERT_NO_THROW(instance.process());
+    ASSERT_EQ(output_queue.size(), 0UL);
+	
+    // non-empty input queue, process one message
+    ASSERT_NO_THROW(input_queue.enqueue(input_message));
+    ASSERT_NO_THROW(instance.process());
+    ASSERT_EQ(input_queue.size(), 0UL);
+    ASSERT_EQ(output_queue.size(), 1UL);
+    const auto output_message = output_queue.dequeue();
+    ASSERT_EQ(output_message, expected_output_message);
 }

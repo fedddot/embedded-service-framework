@@ -7,6 +7,7 @@ target_link_libraries(
 	processor_tests
 	PRIVATE
     processor
+	ring_queue
     gtest
 	gmock
 	gtest_main
