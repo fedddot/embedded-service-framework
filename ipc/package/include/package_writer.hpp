@@ -34,10 +34,10 @@ namespace ipc {
 			const auto header_encoded = m_header_serializer(header);
 			const auto header_size = header_encoded.size();
 			std::vector<std::uint8_t> raw_data(header_size + payload.size(), 0);
-			for (auto i = 0; i < header_size; ++i) {
+			for (std::size_t i = 0; i < header_size; ++i) {
 				raw_data[i] = header_encoded[i];
 			}
-			for (auto i = header_size; i < header_size + payload.size(); ++i) {
+			for (std::size_t i = header_size; i < header_size + payload.size(); ++i) {
 				raw_data[i] = payload[i - header_size];
 			}
 			m_raw_data_writer(raw_data);
