@@ -1,6 +1,7 @@
 #ifndef	PACKAGE_READER_HPP
 #define	PACKAGE_READER_HPP
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <functional>
@@ -10,15 +11,26 @@
 
 #include "input_stream.hpp"
 #include "data_reader.hpp"
+#include "package_header.hpp"
 
 namespace ipc {
+	/// @brief Reads data packages from a byte stream.
+	/// @details A package has the following structure:
+	///	[fixed-size header][payload]
+	/// Where:
+	///		- [fixed-size header] starts with a preamble and contains encoded payload size: [<preamble><encoded payload size>]
+	///		- [payload] data of size corresponding to the encoded payload size
+	template <std::size_t PREAMBLE_SIZE, std::size_t ENCODED_PAYLOAD_SIZE_LENGTH>
 	class PackageReader: public DataReader<std::optional<std::vector<std::uint8_t>>> {
 	public:
+		using Preamble = std::array<std::uint8_t, PREAMBLE_SIZE>;
+		using EncodedPayloadSize = std::array<std::uint8_t, ENCODED_PAYLOAD_SIZE_LENGTH>;
 		using SizeRetriever = std::function<std::size_t(const InputStream<std::uint8_t>&)>;
 		PackageReader(
 			InputStream<std::uint8_t> *byte_stream_ptr,
-			const SizeRetriever& size_retriever,
-			const std::size_t& header_size
+			const std::array<typename Tp, size_t Nm><std::uint8_t>& preamble,
+			const std::size_t encoded_payload_size_length,
+			const SizeRetriever& size_retriever
 		);
 		PackageReader(const PackageReader&) = default;
 		PackageReader& operator=(const PackageReader&) = delete;
