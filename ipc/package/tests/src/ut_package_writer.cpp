@@ -1,4 +1,3 @@
-#include <cstddef>
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -6,58 +5,39 @@
 #include "gtest/gtest.h"
 
 #include "package_writer.hpp"
-#include "package_utils.hpp"
+#include "package_header_serializer.hpp"
 
 using namespace ipc;
 
 #define RING_BUFF_SIZE 	0xFFUL
-#define HEADER_SIZE 	0x2UL
+#define PREAMBLE_SIZE	0x04UL
+#define ENCODED_PAYLOAD_SIZE_LENGTH 0x02UL
 
-TEST(ut_package_writer, ctor_dtor_sanity) {
-	// GIVEN
-	const auto header_generator = [](const std::vector<std::uint8_t>&, const std::size_t&) -> std::vector<std::uint8_t> {
-		throw std::runtime_error("header generator not implemented");
-	};
-	const auto raw_data_writer = [](const std::vector<std::uint8_t>&) {
-		throw std::runtime_error("raw data writer not implemented");
-	};
-
-	// WHEN
-	PackageWriter *instance = nullptr;
-
-
-	// THEN
-	ASSERT_NO_THROW(
-		instance = new PackageWriter(
-			header_generator,
-			raw_data_writer,
-			HEADER_SIZE
-		)
-	);
-	ASSERT_NO_THROW(delete instance);
-	instance = nullptr;
-}
+using TestPackageWriter = PackageWriter<PREAMBLE_SIZE, ENCODED_PAYLOAD_SIZE_LENGTH>;
 
 TEST(ut_package_writer, write_sanity) {
 	// GIVEN
-	auto raw_data_buffer = std::vector<std::uint8_t>();
-	const auto header_generator = [](const std::vector<std::uint8_t>& payload, const std::size_t& header_size) -> std::vector<std::uint8_t> {
-		return serialize_package_size(payload.size(), header_size);
-	};
-	const auto raw_data_writer = [&raw_data_buffer](const std::vector<std::uint8_t>& raw_data) {
-		raw_data_buffer.insert(raw_data_buffer.end(), raw_data.begin(), raw_data.end());
-	};
-	
-	const auto test_payload_str = std::string("test_payload");
+	const std::string payload_str("test_msg");
+	const TestPackageWriter::Preamble preamble = {0xDE, 0xAD, 0xBE, 0xEF};
+	const auto msg_header = PackageHeader<PREAMBLE_SIZE>(preamble, payload_str.size());
+	const auto msg_header_encoded = PackageHeaderSerializer<PREAMBLE_SIZE, ENCODED_PAYLOAD_SIZE_LENGTH>()(msg_header);
 	
 	// WHEN
-	auto instance = PackageWriter(
-		header_generator,
-		raw_data_writer,
-		HEADER_SIZE
+	TestPackageWriter instance(
+		[msg_header_encoded, payload_str](const std::vector<std::uint8_t>& raw_data) {
+			// THEN: validate the header:
+			for (auto i = 0; i < msg_header_encoded.size(); ++i) {
+				ASSERT_EQ(raw_data[i], msg_header_encoded[i]);
+			}
+			// THEN: validate the payload:
+			for (auto i = msg_header_encoded.size(); i < raw_data.size(); ++i) {
+				ASSERT_EQ(raw_data[i], payload_str[i - msg_header_encoded.size()]);
+			}
+		},
+		preamble,
+		PackageHeaderSerializer<PREAMBLE_SIZE, ENCODED_PAYLOAD_SIZE_LENGTH>()
 	);
 
 	// THEN
-	ASSERT_NO_THROW(instance.write(std::vector<std::uint8_t>(test_payload_str.begin(), test_payload_str.end())));
-	ASSERT_EQ(HEADER_SIZE + test_payload_str.size(), raw_data_buffer.size());
+	ASSERT_NO_THROW(instance.write(std::vector<std::uint8_t>(payload_str.begin(), payload_str.end())));
 }
