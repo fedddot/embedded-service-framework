@@ -1,12 +1,11 @@
 #ifndef	DATA_PRODUCER_HPP
 #define	DATA_PRODUCER_HPP
 
-#include "processor.hpp"
 #include "queue.hpp"
 
 namespace processor {
 	template <typename T>
-	class DataProducer: public Processor {
+	class DataProducer {
 	public:
 		using DataQueue = queue::Queue<T>;
 		virtual void set_output_queue(DataQueue *output_queue_ptr) = 0;
