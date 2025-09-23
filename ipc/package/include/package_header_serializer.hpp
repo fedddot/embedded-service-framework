@@ -5,7 +5,6 @@
 #include <climits>
 #include <cstddef>
 #include <cstdint>
-#include <vector>
 
 #include "package_header.hpp"
 
@@ -21,14 +20,18 @@ namespace ipc {
 		RawHeader operator()(const PackageHeader<PREAMBLE_SIZE>& header) const {
 			RawHeader raw_header;
 			const auto& preamble = header.preamble();
-			raw_header.insert(raw_header.begin(), preamble.begin(), preamble.end());
+			for (auto i = 0; i < PREAMBLE_SIZE; ++i) {
+				raw_header[i] = preamble[i];
+			}
 			const auto encoded_size = encode_payload_size(header.payload_size());
-			raw_header.insert(raw_header.begin() + PREAMBLE_SIZE, encoded_size.begin(), encoded_size.end());
+			for (auto i = PREAMBLE_SIZE; i < PREAMBLE_SIZE + ENCODED_PAYLOAD_SIZE_LENGTH; ++i) {
+				raw_header[i] = encoded_size[i - PREAMBLE_SIZE];
+			}
 			return raw_header;
 		}
 	private:
 		static std::array<std::uint8_t, ENCODED_PAYLOAD_SIZE_LENGTH> encode_payload_size(const std::size_t payload_size) {
-			auto encoded_size = std::vector<std::uint8_t>(ENCODED_PAYLOAD_SIZE_LENGTH, 0UL);
+			std::array<std::uint8_t, ENCODED_PAYLOAD_SIZE_LENGTH> encoded_size;
 			for (std::size_t i = 0; i < ENCODED_PAYLOAD_SIZE_LENGTH; ++i) {
 				const auto less_sign_byte = static_cast<char>((payload_size >> CHAR_BIT * i) & 0xFF);
 				encoded_size[i] = less_sign_byte;

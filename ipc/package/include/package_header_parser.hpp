@@ -22,7 +22,15 @@ namespace ipc {
 			if (PREAMBLE_SIZE + ENCODED_PAYLOAD_SIZE_LENGTH != raw_header.size()) {
 				throw std::invalid_argument("invalid raw header size received");
 			}
-			const PackageHeader<PREAMBLE_SIZE> preamble(raw_header.begin(), raw_header.begin() + PREAMBLE_SIZE);
+			typename PackageHeader<PREAMBLE_SIZE>::Preamble preamble;
+			for (auto i = 0; i < PREAMBLE_SIZE; ++i) {
+				preamble[i] = raw_header[i];
+			}
+			std::array<std::uint8_t, ENCODED_PAYLOAD_SIZE_LENGTH> package_size_data;
+			for (auto i = 0; i < ENCODED_PAYLOAD_SIZE_LENGTH; ++i) {
+				package_size_data[i] = raw_header[i + PREAMBLE_SIZE];
+			}
+			return PackageHeader<PREAMBLE_SIZE>(preamble, decode_package_size(package_size_data));
 		}
 	private:
 		static std::size_t decode_package_size(const std::array<std::uint8_t, ENCODED_PAYLOAD_SIZE_LENGTH>& package_size_data) {
