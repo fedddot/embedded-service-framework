@@ -1,6 +1,7 @@
 #ifndef	PACKAGE_READER_HPP
 #define	PACKAGE_READER_HPP
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <functional>
@@ -10,59 +11,66 @@
 
 #include "input_stream.hpp"
 #include "data_reader.hpp"
+#include "package_header.hpp"
 
 namespace ipc {
+	/// @brief Reads data packages from a byte stream.
+	/// @details A package has the following structure:
+	///	[fixed-size header][payload]
+	/// Where:
+	///		- [fixed-size header] starts with a preamble and contains encoded payload size: [<preamble><encoded payload size>]
+	///		- [payload] data of size corresponding to the encoded payload size
+	template <std::size_t PREAMBLE_SIZE, std::size_t ENCODED_PAYLOAD_SIZE_LENGTH>
 	class PackageReader: public DataReader<std::optional<std::vector<std::uint8_t>>> {
 	public:
-		using SizeRetriever = std::function<std::size_t(const InputStream<std::uint8_t>&)>;
+		using Preamble = typename PackageHeader<PREAMBLE_SIZE>::Preamble;
+		using RawHeader = std::array<std::uint8_t, PREAMBLE_SIZE + ENCODED_PAYLOAD_SIZE_LENGTH>;
+		using HeaderParser = std::function<PackageHeader<PREAMBLE_SIZE>(const RawHeader&)>;
 		PackageReader(
 			InputStream<std::uint8_t> *byte_stream_ptr,
-			const SizeRetriever& size_retriever,
-			const std::size_t& header_size
-		);
+			const Preamble& preamble,
+			const HeaderParser& header_parser
+		): m_byte_stream_ptr(byte_stream_ptr), m_preamble(preamble), m_header_parser(header_parser) {
+			if (!m_byte_stream_ptr || !m_header_parser) {
+				throw std::invalid_argument("invalid args received in package reader");
+			}
+		}
 		PackageReader(const PackageReader&) = default;
 		PackageReader& operator=(const PackageReader&) = delete;
-		std::optional<std::vector<std::uint8_t>> read() override;
-	private:
-		InputStream<std::uint8_t> *m_byte_stream_ptr;
-		SizeRetriever m_size_retriever;
-		std::size_t m_header_size;
-	};
-
-	inline PackageReader::PackageReader(
-		InputStream<std::uint8_t> *byte_stream_ptr,
-		const SizeRetriever& size_retriever,
-		const std::size_t& header_size
-	): m_byte_stream_ptr(byte_stream_ptr), m_size_retriever(size_retriever), m_header_size(header_size) {
-		if (!m_byte_stream_ptr || !m_size_retriever) {
-			throw std::invalid_argument("invalid args in package reader received");
-		}
-	}
-
-	inline std::optional<std::vector<std::uint8_t>> PackageReader::read() {
-		try {
-			if (m_byte_stream_ptr->size() < m_header_size) {
+		std::optional<std::vector<std::uint8_t>> read() override {
+			const auto header_size = PREAMBLE_SIZE + ENCODED_PAYLOAD_SIZE_LENGTH;
+			if (m_byte_stream_ptr->size() < header_size) {
 				return std::nullopt;
 			}
-			const auto package_size = m_size_retriever(*m_byte_stream_ptr);
-			if (m_byte_stream_ptr->size() < package_size + m_header_size) {
+			RawHeader raw_header;
+			for (std::size_t i = 0; i < header_size; ++i) {
+				raw_header[i] = m_byte_stream_ptr->inspect(i);
+			}
+			const auto header = m_header_parser(raw_header);
+			if (header.preamble() != m_preamble) {
+				m_byte_stream_ptr->clear();
+				throw std::runtime_error("invalid preamble in package reader");
+			}
+			const auto package_size = header.payload_size();
+			if (m_byte_stream_ptr->size() < package_size + header_size) {
 				return std::nullopt;
 			}
 			std::vector<std::uint8_t> package_data(package_size, 0);
 			for (std::size_t i = 0; i < package_size; ++i) {
-				package_data[i] = m_byte_stream_ptr->inspect(i + m_header_size);
+				package_data[i] = m_byte_stream_ptr->inspect(i + header_size);
 			}
-			auto bytes_to_discard = m_header_size + package_size;
+			auto bytes_to_discard = header_size + package_size;
 			while (bytes_to_discard) {
 				m_byte_stream_ptr->read();
 				--bytes_to_discard;
 			}
 			return package_data;
-		} catch (...) {
-			m_byte_stream_ptr->clear();
-			throw;
 		}
-	}
+	private:
+		InputStream<std::uint8_t> *m_byte_stream_ptr;
+		Preamble m_preamble;
+		HeaderParser m_header_parser;
+	};
 }
 
 #endif // PACKAGE_READER_HPP

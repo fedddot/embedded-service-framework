@@ -1,4 +1,3 @@
-#include <cstddef>
 #include <cstdint>
 #include <optional>
 #include <string>
@@ -7,56 +6,31 @@
 #include "gtest/gtest.h"
 
 #include "package_reader.hpp"
-#include "package_utils.hpp"
+#include "package_header_parser.hpp"
+#include "package_header_serializer.hpp"
 #include "ring_buffer_input_stream.hpp"
 
 using namespace ipc;
 
 #define RING_BUFF_SIZE 	0xFFUL
-#define HEADER_SIZE 	0x2UL
+#define PREAMBLE_SIZE	0x04UL
+#define ENCODED_PAYLOAD_SIZE_LENGTH 0x02UL
 
-TEST(ut_package_reader, ctor_dtor_sanity) {
-	// GIVEN
-	auto buff = RingBufferInputStream<std::uint8_t, RING_BUFF_SIZE>();
-	auto size_retriever = [](const InputStream<std::uint8_t>& queue) -> std::size_t {
-		throw std::runtime_error("size retriever not implemented");
-	};
-
-	// WHEN
-	PackageReader *instance = nullptr;
-
-
-	// THEN
-	ASSERT_NO_THROW(
-		instance = new PackageReader(
-			&buff,
-			size_retriever,
-			HEADER_SIZE
-		)
-	);
-	ASSERT_NO_THROW(delete instance);
-	instance = nullptr;
-}
+using TestPackageReader = PackageReader<PREAMBLE_SIZE, ENCODED_PAYLOAD_SIZE_LENGTH>;
 
 TEST(ut_package_reader, read_sanity) {
 	// GIVEN
-	auto size_retriever = [](const InputStream<std::uint8_t>& queue) -> std::size_t {
-		const auto size_data = std::vector<std::uint8_t> {
-			queue.inspect(0),
-			queue.inspect(1),
-		};
-		return parse_package_size(size_data);
-	};
-	
-	const auto msg_str = std::string("test_msg");
-	const auto msg_size_encoded = serialize_package_size(msg_str.size(), HEADER_SIZE);
-	
+	const std::string payload_str("test_msg");
+	const TestPackageReader::Preamble preamble = {0xDE, 0xAD, 0xBE, 0xEF};
+	const auto msg_header = PackageHeader<PREAMBLE_SIZE>(preamble, payload_str.size());
+	const auto msg_header_encoded = PackageHeaderSerializer<PREAMBLE_SIZE, ENCODED_PAYLOAD_SIZE_LENGTH>()(msg_header);
+
 	// WHEN
-	auto buff = RingBufferInputStream<std::uint8_t, RING_BUFF_SIZE>();
-	auto instance = PackageReader(
+	RingBufferInputStream<std::uint8_t, RING_BUFF_SIZE> buff;
+	TestPackageReader instance(
 		&buff,
-		size_retriever,
-		HEADER_SIZE
+		preamble,
+		PackageHeaderParser<PREAMBLE_SIZE, ENCODED_PAYLOAD_SIZE_LENGTH>()
 	);
 	auto result = std::optional<std::vector<std::uint8_t>>();
 
@@ -66,18 +40,18 @@ TEST(ut_package_reader, read_sanity) {
 	ASSERT_FALSE(result);
 
 	// add encoded message size
-	for (const auto& byte: msg_size_encoded) {
+	for (const auto& byte: msg_header_encoded) {
 		buff.enqueue(byte);
 	}
 	ASSERT_NO_THROW(result = instance.read());
 	ASSERT_FALSE(result);
 	
 	// add message
-	for (const auto& byte: msg_str) {
+	for (const auto& byte: payload_str) {
 		buff.enqueue(static_cast<std::uint8_t>(byte));
 	}
 	ASSERT_NO_THROW(result = instance.read());
 	ASSERT_TRUE(result);
-	ASSERT_EQ(msg_str, std::string(result->begin(), result->end()));
+	ASSERT_EQ(payload_str, std::string(result->begin(), result->end()));
 	ASSERT_EQ(0UL, buff.size());
 }

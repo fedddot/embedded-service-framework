@@ -10,8 +10,9 @@ target_link_libraries(
 	PRIVATE
 	ring_buffer_input_stream
 	package_reader
+	package_header_parser
+	package_header_serializer
 	package_writer
-	package_utils
 	gtest
 	gtest_main
 )
