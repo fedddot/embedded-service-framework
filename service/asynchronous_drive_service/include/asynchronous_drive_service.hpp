@@ -4,11 +4,10 @@
 #include <stdexcept>
 
 #include "asynchronous_drive_request.hpp"
+#include "asynchronous_drive_response.hpp"
 #include "service.hpp"
 
 namespace service {
-	class AsynchronousDriveResponse;
-
 	class AsynchronousDriveService: public Service<AsynchronousDriveRequest, AsynchronousDriveResponse> {
 	public:
 		AsynchronousDriveResponse run_api_request(const AsynchronousDriveRequest& request) override {
