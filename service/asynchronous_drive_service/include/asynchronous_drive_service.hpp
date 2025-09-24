@@ -1,11 +1,12 @@
 #ifndef	ASYNCHRONOUS_DRIVE_SERVICE_HPP
 #define	ASYNCHRONOUS_DRIVE_SERVICE_HPP
 
-#include "service.hpp"
 #include <stdexcept>
 
+#include "asynchronous_drive_request.hpp"
+#include "service.hpp"
+
 namespace service {
-	class AsynchronousDriveRequest;
 	class AsynchronousDriveResponse;
 
 	class AsynchronousDriveService: public Service<AsynchronousDriveRequest, AsynchronousDriveResponse> {

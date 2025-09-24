@@ -1,5 +1,8 @@
+add_library(asynchronous_drive_request INTERFACE)
+target_include_directories(asynchronous_drive_request INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+
 add_library(asynchronous_drive_service INTERFACE)
 target_include_directories(asynchronous_drive_service INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
-target_link_libraries(asynchronous_drive_service INTERFACE service)
+target_link_libraries(asynchronous_drive_service INTERFACE service asynchronous_drive_request)
 
 add_subdirectory(tests)
