@@ -1,0 +1,19 @@
+#ifndef	ASYNCHRONOUS_DRIVE_SERVICE_HPP
+#define	ASYNCHRONOUS_DRIVE_SERVICE_HPP
+
+#include "service.hpp"
+#include <stdexcept>
+
+namespace service {
+	class AsynchronousDriveRequest;
+	class AsynchronousDriveResponse;
+
+	class AsynchronousDriveService: public Service<AsynchronousDriveRequest, AsynchronousDriveResponse> {
+	public:
+		AsynchronousDriveResponse run_api_request(const AsynchronousDriveRequest& request) override {
+			throw std::runtime_error("not implemented");
+		}
+	};
+}
+
+#endif // ASYNCHRONOUS_DRIVE_SERVICE_HPP
