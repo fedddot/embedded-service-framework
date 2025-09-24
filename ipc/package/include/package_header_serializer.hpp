@@ -20,11 +20,11 @@ namespace ipc {
 		RawHeader operator()(const PackageHeader<PREAMBLE_SIZE>& header) const {
 			RawHeader raw_header;
 			const auto& preamble = header.preamble();
-			for (auto i = 0; i < PREAMBLE_SIZE; ++i) {
+			for (std::size_t i = 0; i < PREAMBLE_SIZE; ++i) {
 				raw_header[i] = preamble[i];
 			}
 			const auto encoded_size = encode_payload_size(header.payload_size());
-			for (auto i = PREAMBLE_SIZE; i < PREAMBLE_SIZE + ENCODED_PAYLOAD_SIZE_LENGTH; ++i) {
+			for (std::size_t i = PREAMBLE_SIZE; i < PREAMBLE_SIZE + ENCODED_PAYLOAD_SIZE_LENGTH; ++i) {
 				raw_header[i] = encoded_size[i - PREAMBLE_SIZE];
 			}
 			return raw_header;
