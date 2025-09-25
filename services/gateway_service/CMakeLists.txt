@@ -13,4 +13,7 @@ target_link_libraries(
     gateway_service_api_request
     gateway_service_api_response
 )
-add_subdirectory(tests)
+
+if(BUILD_TESTS)
+    add_subdirectory(tests)
+endif()

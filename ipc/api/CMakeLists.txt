@@ -14,4 +14,6 @@ target_link_libraries(
     data_writer
 )
 
-add_subdirectory(tests)
+if(BUILD_TESTS)
+    add_subdirectory(tests)
+endif()
