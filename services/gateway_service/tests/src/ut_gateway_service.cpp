@@ -26,8 +26,8 @@ TEST(ut_gateway_service, run_api_request_sanity) {
 	GatewayService<TestRouteId, TestPayload> service;
 	service.register_route_handler(
 		route_id,
-		[request_payload, expected_response_payload](const TestPayload& payload) {
-			if (request_payload != payload) {
+		[expected_request_payload = request_payload, expected_response_payload](const TestPayload& request_payload) {
+			if (request_payload != expected_request_payload) {
 				throw std::invalid_argument("unexpected payload received in handler");
 			}
 			return expected_response_payload;
