@@ -7,6 +7,9 @@ target_link_libraries(
 	cnc_service_tests
 	PRIVATE
     cnc_service
+    cnc_service_api_request
+    cnc_service_api_response
+    linear_movement_data
     gtest
 	gmock
 	gtest_main

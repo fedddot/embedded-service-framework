@@ -2,40 +2,27 @@
 
 #include "cnc_service.hpp"
 #include "cnc_service_api_request.hpp"
+#include "cnc_service_api_response.hpp"
+#include "linear_movement_data.hpp"
 
 using namespace service;
 
-enum class TestRouteId {
-	TEST_ROUTE_0 = 0,
-	TEST_ROUTE_1 = 1,
-};
-
-using TestPayload = std::string;
-
 TEST(ut_cnc_service, run_api_request_sanity) {
 	// GIVEN
-	const TestPayload request_payload("request_payload");
-	const TestPayload expected_response_payload("response_payload");
-	const TestRouteId route_id = TestRouteId::TEST_ROUTE_0;
-	const CncServiceApiRequest<TestRouteId, TestPayload> test_request(
-		route_id,
-		request_payload
+	const LinearMovementData test_movement_data(
+		Vector<double>(0.0, 0.0, 0.0),
+		Vector<double>({10.0, 10.0, 10.0}),
+		100.0
 	);
-
+	const CncServiceApiRequest test_request(
+		CncServiceApiRequest::MovementType::LINEAR,
+		std::nullopt,
+		test_movement_data
+	);
 	// WHEN:
-	CncService<TestRouteId, TestPayload> service;
-	service.register_route_handler(
-		route_id,
-		[expected_request_payload = request_payload, expected_response_payload](const TestPayload& request_payload) {
-			if (request_payload != expected_request_payload) {
-				throw std::invalid_argument("unexpected payload received in handler");
-			}
-			return expected_response_payload;
-		}
-	);
-
+	CncService service;
+	
 	// THEN:
 	const auto response = service.run_api_request(test_request);
-	ASSERT_EQ(response.route_id(), route_id);
-	ASSERT_EQ(response.payload(), expected_response_payload);
+	ASSERT_EQ(response.result(), CncServiceApiResponse::Result::SUCCESS);
 }
