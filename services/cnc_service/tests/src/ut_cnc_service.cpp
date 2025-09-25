@@ -9,10 +9,13 @@ using namespace service;
 
 TEST(ut_cnc_service, run_api_request_sanity) {
 	// GIVEN
+	const auto axes_basis = Vector<double>(1.0, 1.0, 1.0);
+	const auto target_position = Vector<double>(10.0, 10.0, 10.0);
+	const auto linear_speed = 100.0;
 	const LinearMovementData test_movement_data(
-		Vector<double>(0.0, 0.0, 0.0),
-		Vector<double>({10.0, 10.0, 10.0}),
-		100.0
+		axes_basis,
+		target_position,
+		linear_speed
 	);
 	const CncServiceApiRequest test_request(
 		CncServiceApiRequest::MovementType::LINEAR,
