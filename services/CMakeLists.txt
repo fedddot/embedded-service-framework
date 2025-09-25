@@ -1,1 +1,2 @@
+add_subdirectory(cnc_service)
 add_subdirectory(gateway_service)
