@@ -35,4 +35,6 @@ target_link_libraries(
     package_header
 )
 
-add_subdirectory(tests)
+if(BUILD_TESTS)
+    add_subdirectory(tests)
+endif()

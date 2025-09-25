@@ -8,4 +8,6 @@ target_link_libraries(
     service
 )
 
-add_subdirectory(tests)
+if(BUILD_TESTS)
+    add_subdirectory(tests)
+endif()
