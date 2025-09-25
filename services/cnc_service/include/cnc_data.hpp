@@ -9,6 +9,11 @@ namespace service {
 		Y = 1,
 		Z = 2
 	};
+
+	enum class MotorDirection: int {
+		CW = 0,
+		CCW = 1,
+	};
 	
 	template <typename T>
 	class Vector {
@@ -18,6 +23,7 @@ namespace service {
 		Vector& operator=(const Vector&) = default;
 		virtual ~Vector() noexcept = default;
 		const T& get(const Axis& axis) const { return m_data.at(axis); }
+		void set(const Axis& axis, const T& value) { m_data[axis] = value; }
 	private:
 		std::map<Axis, T> m_data;
 	};

@@ -7,6 +7,7 @@
 #include "cnc_service_api_request.hpp"
 #include "cnc_service_api_response.hpp"
 #include "linear_movement_data.hpp"
+#include "linear_movement_model.hpp"
 #include "service.hpp"
 
 namespace service {
@@ -33,6 +34,7 @@ namespace service {
 		}
 	private:
 		CncServiceApiResponse run_linear_movement_request(const LinearMovementData& data) {
+			LinearMovementModel model(data);
 			throw std::runtime_error("run_linear_movement_request is not implemented yet");
 		}
 		CncServiceApiResponse run_circular_movement_request(const CircularMovementData& data) {
