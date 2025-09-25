@@ -7,6 +7,7 @@ using namespace service;
 
 TEST(ut_gateway_service, run_api_request_sanity) {
 	// GIVEN
+	const auto test_payload = "test_payload";
 	const GatewayServiceApiRequest test_request;
 
 	// WHEN:

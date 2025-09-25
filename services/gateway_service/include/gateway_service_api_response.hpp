@@ -3,10 +3,8 @@
 
 #include <functional>
 
-#include "gateway_service_types.hpp"
-
 namespace service {
-	template <typename RouteId>
+	template <typename RouteId, typename Payload>
 	class GatewayServiceApiResponse {
 	public:
 		GatewayServiceApiResponse(
