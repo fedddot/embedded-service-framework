@@ -7,7 +7,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(BUILD_TESTS "Build the project's test suite" ON)
-
 if(BUILD_TESTS)
     enable_testing()
     add_subdirectory(googletest EXCLUDE_FROM_ALL)
