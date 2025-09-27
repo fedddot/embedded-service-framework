@@ -27,6 +27,24 @@ namespace service {
 	private:
 		std::map<Axis, T> m_data;
 	};
+
+	template <typename T>
+	inline Vector<T> operator-(const Vector<T>& lhs, const Vector<T>& rhs) {
+		return Vector<T>(
+			lhs.get(Axis::X) - rhs.get(Axis::X),
+			lhs.get(Axis::Y) - rhs.get(Axis::Y),
+			lhs.get(Axis::Z) - rhs.get(Axis::Z)
+		);
+	}
+
+	template <typename T>
+	inline Vector<T> operator+(const Vector<T>& lhs, const Vector<T>& rhs) {
+		return Vector<T>(
+			lhs.get(Axis::X) + rhs.get(Axis::X),
+			lhs.get(Axis::Y) + rhs.get(Axis::Y),
+			lhs.get(Axis::Z) + rhs.get(Axis::Z)
+		);
+	}
 }
 
 #endif // CNC_DATA_HPP
