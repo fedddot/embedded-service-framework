@@ -17,11 +17,8 @@ jobs:
     steps:
     - name: checkout
       uses: actions/checkout@v4
-    
-    - name: update submodules
-      working-directory: ${{github.workspace}}
-      run: |
-        git submodule update --init --recursive
+      with:
+        submodules: recursive
 
     - name: build dev image
       working-directory: ${{github.workspace}}
