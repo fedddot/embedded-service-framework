@@ -6,7 +6,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "api_message_reader.hpp"
+#include "nanopb_message_reader.hpp"
 #include "data_reader.hpp"
 
 using namespace ipc;
@@ -18,7 +18,7 @@ public:
     MOCK_METHOD(std::optional<std::vector<std::uint8_t>>, read, (), (override));
 };
 
-TEST(ut_api_message_reader, ctor_dtor_sanity) {
+TEST(ut_nanopb_message_reader, ctor_dtor_sanity) {
 	// GIVEN
 	auto package_reader = MockPackageReader();
 	const auto message_parser = [](const std::vector<std::uint8_t>& data) -> ApiMessage {
@@ -40,12 +40,12 @@ TEST(ut_api_message_reader, ctor_dtor_sanity) {
 	instance = nullptr;
 }
 
-TEST(ut_api_message_reader, read_sanity) {
+TEST(ut_nanopb_message_reader, read_sanity) {
 	// GIVEN
-	const auto test_api_message = ApiMessage("test_msg");
+	const auto test_nanopb_message = ApiMessage("test_msg");
 	auto package_reader = ::testing::NiceMock<MockPackageReader>();
     EXPECT_CALL(package_reader, read())
-        .WillOnce(::testing::Return(std::vector<std::uint8_t>(test_api_message.begin(), test_api_message.end())));
+        .WillOnce(::testing::Return(std::vector<std::uint8_t>(test_nanopb_message.begin(), test_nanopb_message.end())));
 	const auto message_parser = [](const std::vector<std::uint8_t>& data) -> ApiMessage {
 		return ApiMessage(data.begin(), data.end());
 	};
@@ -60,5 +60,5 @@ TEST(ut_api_message_reader, read_sanity) {
 	// THEN
 	ASSERT_NO_THROW(result = instance.read());
 	ASSERT_TRUE(result.has_value());
-	ASSERT_EQ(*result, test_api_message);
+	ASSERT_EQ(*result, test_nanopb_message);
 }

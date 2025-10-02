@@ -5,7 +5,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
-#include "api_message_writer.hpp"
+#include "nanopb_message_writer.hpp"
 
 using namespace ipc;
 
@@ -16,7 +16,7 @@ public:
     MOCK_METHOD(void, write, (const std::vector<std::uint8_t>&), (override));
 };
 
-TEST(ut_api_message_writer, ctor_dtor_sanity) {
+TEST(ut_nanopb_message_writer, ctor_dtor_sanity) {
 	// GIVEN
 	auto package_writer = MockPackageWriter();
 	const auto message_serializer = [](const ApiMessage& message) -> std::vector<std::uint8_t> {
@@ -38,9 +38,9 @@ TEST(ut_api_message_writer, ctor_dtor_sanity) {
 	instance = nullptr;
 }
 
-TEST(ut_api_message_writer, write_sanity) {
+TEST(ut_nanopb_message_writer, write_sanity) {
 	// GIVEN
-	const auto api_message = ApiMessage("test_msg");
+	const auto nanopb_message = ApiMessage("test_msg");
 	auto package_writer = ::testing::NiceMock<MockPackageWriter>();
     EXPECT_CALL(package_writer, write(::testing::_)).Times(1);
 	const auto message_serializer = [](const ApiMessage& message) -> std::vector<std::uint8_t> {
@@ -55,5 +55,5 @@ TEST(ut_api_message_writer, write_sanity) {
 	);
 
 	// THEN
-	ASSERT_NO_THROW(instance.write(api_message));
+	ASSERT_NO_THROW(instance.write(nanopb_message));
 }
