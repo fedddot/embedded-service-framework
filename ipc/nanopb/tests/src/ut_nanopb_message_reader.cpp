@@ -32,21 +32,29 @@ TEST(ut_nanopb_message_reader, read_sanity) {
 	const auto test_serialized_message = serialize_api_message(test_api_message);
 	auto package_reader = ::testing::NiceMock<MockPackageReader>();
     EXPECT_CALL(package_reader, read())
-	.WillOnce(::testing::Return(test_serialized_message));
+		.WillOnce(::testing::Return(test_serialized_message));
 	const auto message_parser = [](const test_api_TestRequest& data) -> ApiMessage {
-		return ApiMessage((const char *)data.request.arg);
+		return ApiMessage(*(const std::string *)data.request.arg);
 	};
-	
+	const auto init_pb_msg = []() -> test_api_TestRequest {
+		char buff[256] = {'\0'};
+		test_api_TestRequest pb_message = test_api_TestRequest_init_default;
+		pb_message.request.funcs.decode = decode_string;
+		pb_message.request.arg = new std::string();
+		return pb_message;
+	};
+	const auto deinit_pb_msg = [](test_api_TestRequest *pb_request) {
+		delete (std::string *)((pb_request->request).arg);
+	};
+
 	// WHEN
-	char buff[256] = {'\0'};
-	test_api_TestRequest pb_message = test_api_TestRequest_init_default;
-	pb_message.request.funcs.decode = decode_string;
-	pb_message.request.arg = buff;
+	
 
 	NanopbMessageReader<ApiMessage, test_api_TestRequest> instance(
 		&package_reader,
 		message_parser,
-		pb_message,
+		init_pb_msg,
+		deinit_pb_msg,
 		test_api_TestRequest_fields
 	);
 	auto result = std::optional<ApiMessage>();
@@ -86,14 +94,14 @@ inline bool decode_string(pb_istream_t *stream, const pb_field_t *field, void **
 	if (!arg) {
 		throw std::runtime_error("encode_string called with null arg");
 	}
-	pb_byte_t *dst = *(pb_byte_t **)(arg);
+	std::string *dst = *(std::string **)(arg);
     if (!dst) {
 		throw std::runtime_error("destination buffer is not set");
 	}
-	size_t string_len = stream->bytes_left;
-	if (!pb_read(stream, dst, string_len)) {
+	pb_byte_t buff[256UL] = {'\0'};
+	if (!pb_read(stream, buff, stream->bytes_left)) {
 		return false;
 	}
-	dst[string_len] = '\0';
+	*dst = std::string((const char *)buff);
     return true;
 }
