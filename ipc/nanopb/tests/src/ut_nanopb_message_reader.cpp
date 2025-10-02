@@ -48,8 +48,6 @@ TEST(ut_nanopb_message_reader, read_sanity) {
 	};
 
 	// WHEN
-	
-
 	NanopbMessageReader<ApiMessage, test_api_TestRequest> instance(
 		&package_reader,
 		message_parser,
