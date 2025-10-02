@@ -22,7 +22,7 @@ namespace ipc {
 			PackageReader *package_reader_ptr,
 			const ApiMessageParser& message_parser,
 			const NanoPbMessage& init_nanopb_message,
-			const pb_msgdesc_t& nanopb_message_fields
+			const pb_msgdesc_t *nanopb_message_fields
 		): m_package_reader_ptr(package_reader_ptr), m_message_parser(message_parser), m_init_nanopb_message(init_nanopb_message), m_nanopb_message_fields(nanopb_message_fields) {
 			if (!m_package_reader_ptr || !m_message_parser) {
 				throw std::invalid_argument("invalid args received");
@@ -35,9 +35,9 @@ namespace ipc {
 			if (!package_data) {
 				return std::nullopt;
 			}
-			const auto stream = pb_istream_from_buffer((*package_data).data(), (*package_data).size());
+			auto stream = pb_istream_from_buffer((*package_data).data(), (*package_data).size());
 			NanoPbMessage request(m_init_nanopb_message);
-			if (!pb_decode(&stream, &m_nanopb_message_fields, &request)) {
+			if (!pb_decode(&stream, m_nanopb_message_fields, &request)) {
                 throw std::runtime_error("failed to decode Nano PB request: " + std::string(PB_GET_ERROR(&stream)));
             }
 			return m_message_parser(request);
@@ -46,7 +46,7 @@ namespace ipc {
 		PackageReader *m_package_reader_ptr;
 		ApiMessageParser m_message_parser;
 		NanoPbMessage m_init_nanopb_message;
-		pb_msgdesc_t m_nanopb_message_fields;
+		const pb_msgdesc_t *m_nanopb_message_fields;
 	};
 }
 
