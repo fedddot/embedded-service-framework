@@ -24,20 +24,25 @@ public:
 };
 
 static std::vector<std::uint8_t> serialize_api_message(const ApiMessage& msg);
+static bool decode_string(pb_istream_t *stream, const pb_field_t *field, void **arg);
 
 TEST(ut_nanopb_message_reader, read_sanity) {
 	// GIVEN
-	const auto test_nanopb_message = ApiMessage("test_msg");
-	const auto test_serialized_message = serialize_api_message(test_nanopb_message);
-	const test_api_TestRequest pb_message = test_api_TestRequest_init_default;
+	const auto test_api_message = ApiMessage("test_msg");
+	const auto test_serialized_message = serialize_api_message(test_api_message);
 	auto package_reader = ::testing::NiceMock<MockPackageReader>();
     EXPECT_CALL(package_reader, read())
-        .WillOnce(::testing::Return(test_serialized_message));
+	.WillOnce(::testing::Return(test_serialized_message));
 	const auto message_parser = [](const test_api_TestRequest& data) -> ApiMessage {
-		throw std::runtime_error("not implemented");
+		return ApiMessage((const char *)data.request.arg);
 	};
 	
 	// WHEN
+	char buff[256] = {'\0'};
+	test_api_TestRequest pb_message = test_api_TestRequest_init_default;
+	pb_message.request.funcs.decode = decode_string;
+	pb_message.request.arg = buff;
+
 	NanopbMessageReader<ApiMessage, test_api_TestRequest> instance(
 		&package_reader,
 		message_parser,
@@ -49,11 +54,10 @@ TEST(ut_nanopb_message_reader, read_sanity) {
 	// THEN
 	ASSERT_NO_THROW(result = instance.read());
 	ASSERT_TRUE(result.has_value());
-	ASSERT_EQ(*result, test_nanopb_message);
+	ASSERT_EQ(*result, test_api_message);
 }
 
 static bool encode_string(pb_ostream_t *stream, const pb_field_t *field, void * const *arg);
-
 inline std::vector<std::uint8_t> serialize_api_message(const ApiMessage& msg) {
 	test_api_TestRequest api_request(test_api_TestRequest_init_default);
 	api_request.request.funcs.encode = encode_string;
@@ -76,4 +80,20 @@ inline bool encode_string(pb_ostream_t *stream, const pb_field_t *field, void * 
 		return false;
 	}
 	return pb_encode_string(stream, (const pb_byte_t *)(str), std::strlen(str));
+}
+
+inline bool decode_string(pb_istream_t *stream, const pb_field_t *field, void **arg) {
+	if (!arg) {
+		throw std::runtime_error("encode_string called with null arg");
+	}
+	pb_byte_t *dst = *(pb_byte_t **)(arg);
+    if (!dst) {
+		throw std::runtime_error("destination buffer is not set");
+	}
+	size_t string_len = stream->bytes_left;
+	if (!pb_read(stream, dst, string_len)) {
+		return false;
+	}
+	dst[string_len] = '\0';
+    return true;
 }
