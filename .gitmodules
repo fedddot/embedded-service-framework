@@ -6,4 +6,4 @@
 [submodule "ipc/nanopb/nanopb"]
     path = ipc/nanopb/nanopb
     url = https://github.com/nanopb/nanopb.git
-	tag = v1.17.0
+	tag = nanopb-0.4.9.1
