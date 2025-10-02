@@ -25,8 +25,7 @@ namespace ipc {
 		ApiMessageWriter(const ApiMessageWriter&) = default;
 		ApiMessageWriter& operator=(const ApiMessageWriter&) = delete;
 		void write(const ApiMessage& message) override {
-			const auto package_data = m_message_serializer(message);
-			m_package_writer_ptr->write(package_data);
+			throw std::runtime_error("NOT IMPLEMENTED");
 		}
 	private:
 		PackageWriter *m_package_writer_ptr;
