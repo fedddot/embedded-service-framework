@@ -39,12 +39,12 @@ namespace ipc {
 				return std::nullopt;
 			}
 			auto stream = pb_istream_from_buffer((*package_data).data(), (*package_data).size());
-			NanoPbMessage request = m_init_nanopb_message();
-			if (!pb_decode(&stream, m_nanopb_message_fields, &request)) {
-                throw std::runtime_error("failed to decode Nano PB request: " + std::string(PB_GET_ERROR(&stream)));
+			NanoPbMessage pb_message = m_init_nanopb_message();
+			if (!pb_decode(&stream, m_nanopb_message_fields, &pb_message)) {
+                throw std::runtime_error("failed to decode Nano PB message: " + std::string(PB_GET_ERROR(&stream)));
             }
-			const auto api_message(m_message_parser(request));
-			m_deinit_nanopb_message(&request);
+			const auto api_message(m_message_parser(pb_message));
+			m_deinit_nanopb_message(&pb_message);
 			return api_message;
 		}
 	private:
