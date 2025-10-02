@@ -8,6 +8,7 @@
 
 #include "nanopb_message_reader.hpp"
 #include "data_reader.hpp"
+#include "test.pb.h"
 
 using namespace ipc;
 
@@ -18,31 +19,10 @@ public:
     MOCK_METHOD(std::optional<std::vector<std::uint8_t>>, read, (), (override));
 };
 
-TEST(ut_nanopb_message_reader, ctor_dtor_sanity) {
-	// GIVEN
-	auto package_reader = MockPackageReader();
-	const auto message_parser = [](const std::vector<std::uint8_t>& data) -> ApiMessage {
-		throw std::runtime_error("message parser not implemented");
-	};
-
-	// WHEN
-	ApiMessageReader<ApiMessage> *instance = nullptr;
-
-
-	// THEN
-	ASSERT_NO_THROW(
-		instance = new ApiMessageReader<ApiMessage>(
-			&package_reader,
-			message_parser
-		)
-	);
-	ASSERT_NO_THROW(delete instance);
-	instance = nullptr;
-}
-
 TEST(ut_nanopb_message_reader, read_sanity) {
 	// GIVEN
 	const auto test_nanopb_message = ApiMessage("test_msg");
+	const test_api_TestRequest pb_message = test_api_TestRequest_init_default;
 	auto package_reader = ::testing::NiceMock<MockPackageReader>();
     EXPECT_CALL(package_reader, read())
         .WillOnce(::testing::Return(std::vector<std::uint8_t>(test_nanopb_message.begin(), test_nanopb_message.end())));
@@ -51,7 +31,7 @@ TEST(ut_nanopb_message_reader, read_sanity) {
 	};
 	
 	// WHEN
-	ApiMessageReader<ApiMessage> instance(
+	NanopbMessageReader<ApiMessage, test_api_TestRequest> instance(
 		&package_reader,
 		message_parser
 	);

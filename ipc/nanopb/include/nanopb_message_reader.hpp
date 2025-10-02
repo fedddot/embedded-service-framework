@@ -14,11 +14,11 @@
 
 namespace ipc {
 	template <typename ApiMessage, typename NanoPbMessage>
-	class ApiMessageReader: public DataReader<std::optional<ApiMessage>> {
+	class NanopbMessageReader: public DataReader<std::optional<ApiMessage>> {
 	public:
 		using PackageReader = DataReader<std::optional<std::vector<std::uint8_t>>>;
 		using ApiMessageParser = std::function<ApiMessage(const NanoPbMessage&)>;
-		ApiMessageReader(
+		NanopbMessageReader(
 			PackageReader *package_reader_ptr,
 			const ApiMessageParser& message_parser,
 			const NanoPbMessage& init_nanopb_message,
@@ -28,8 +28,8 @@ namespace ipc {
 				throw std::invalid_argument("invalid args received");
 			}
 		}
-		ApiMessageReader(const ApiMessageReader&) = default;
-		ApiMessageReader& operator=(const ApiMessageReader&) = delete;
+		NanopbMessageReader(const NanopbMessageReader&) = default;
+		NanopbMessageReader& operator=(const NanopbMessageReader&) = delete;
 		std::optional<ApiMessage> read() override {
 			const auto package_data = m_package_reader_ptr->read();
 			if (!package_data) {
