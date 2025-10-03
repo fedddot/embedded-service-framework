@@ -15,6 +15,7 @@ target_link_libraries(
     nanopb_message_writer
     INTERFACE
     data_writer
+    protobuf-nanopb-static
 )
 
 if(BUILD_TESTS)
