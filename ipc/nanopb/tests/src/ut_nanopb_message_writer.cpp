@@ -27,20 +27,20 @@ TEST(ut_nanopb_message_writer, write_sanity) {
 	// GIVEN
 	const auto test_api_message = ApiMessage("test_msg");
 	auto package_writer = ::testing::NiceMock<MockPackageWriter>();
-	const auto serializer = [](const ApiMessage& data) -> test_api_TestRequest {
-		test_api_TestRequest pb_request(test_api_TestRequest_init_default);
-		pb_request.request.arg = new std::string(data);
-		pb_request.request.funcs.encode = encode_string;
-		return pb_request;
+	const auto api_msg_to_nano_pb = [](const ApiMessage& api_msg) -> test_api_TestRequest {
+		test_api_TestRequest pb_msg(test_api_TestRequest_init_default);
+		pb_msg.request.arg = new std::string(api_msg);
+		pb_msg.request.funcs.encode = encode_string;
+		return pb_msg;
 	};
-	const auto deinit_pb_msg = [](test_api_TestRequest *pb_request) {
-		delete (std::string *)((pb_request->request).arg);
+	const auto deinit_pb_msg = [](test_api_TestRequest *pb_msg) {
+		delete (std::string *)((pb_msg->request).arg);
 	};
 
 	// WHEN
 	NanopbMessageWriter<ApiMessage, test_api_TestRequest, 256UL> instance(
 		&package_writer,
-		serializer,
+		api_msg_to_nano_pb,
 		deinit_pb_msg,
 		test_api_TestRequest_fields
 	);

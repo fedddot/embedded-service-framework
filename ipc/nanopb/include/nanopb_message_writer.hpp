@@ -16,22 +16,22 @@ namespace ipc {
 	class NanopbMessageWriter: public DataWriter<ApiMessage> {
 	public:
 		using PackageWriter = DataWriter<std::vector<std::uint8_t>>;
-		using ApiMessageSerializer = std::function<NanoPbMessage(const ApiMessage&)>;
+		using ApiMessageToNanoPbFunc = std::function<NanoPbMessage(const ApiMessage&)>;
 		using NanoPbMessageDeinitFunc = std::function<void(NanoPbMessage *)>;
 		NanopbMessageWriter(
 			PackageWriter *package_writer_ptr,
-			const ApiMessageSerializer& message_serializer,
+			const ApiMessageToNanoPbFunc& api_msg_to_nano_pb,
 			const NanoPbMessageDeinitFunc& deinit_nanopb_message,
 			const pb_msgdesc_t *nanopb_message_fields
-		): m_package_writer_ptr(package_writer_ptr), m_message_serializer(message_serializer), m_deinit_nanopb_message(deinit_nanopb_message), m_nanopb_message_fields(nanopb_message_fields) {
-			if (!m_package_writer_ptr || !m_message_serializer) {
+		): m_package_writer_ptr(package_writer_ptr), m_api_msg_to_nano_pb(api_msg_to_nano_pb), m_deinit_nanopb_message(deinit_nanopb_message), m_nanopb_message_fields(nanopb_message_fields) {
+			if (!m_package_writer_ptr || !m_api_msg_to_nano_pb) {
 				throw std::invalid_argument("invalid args received");
 			}
 		}
 		NanopbMessageWriter(const NanopbMessageWriter&) = default;
 		NanopbMessageWriter& operator=(const NanopbMessageWriter&) = delete;
 		void write(const ApiMessage& message) override {
-			auto pb_message = m_message_serializer(message);
+			auto pb_message = m_api_msg_to_nano_pb(message);
 			pb_byte_t buff[MAX_MSG_SIZE] = { 0 };
 			pb_ostream_t ostream = pb_ostream_from_buffer(
                 buff,
@@ -46,7 +46,7 @@ namespace ipc {
 		}
 	private:
 		PackageWriter *m_package_writer_ptr;
-		const ApiMessageSerializer m_message_serializer;
+		const ApiMessageToNanoPbFunc m_api_msg_to_nano_pb;
 		NanoPbMessageDeinitFunc m_deinit_nanopb_message;
 		const pb_msgdesc_t *m_nanopb_message_fields;
 	};
