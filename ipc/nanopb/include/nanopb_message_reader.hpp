@@ -1,5 +1,5 @@
-#ifndef	API_MESSAGE_READER_HPP
-#define	API_MESSAGE_READER_HPP
+#ifndef	NANOPB_MESSAGE_READER_HPP
+#define	NANOPB_MESSAGE_READER_HPP
 
 /// @file nanopb_message_reader.hpp
 /// @brief Template class for decoding Nanopb-serialized protocol buffer messages
@@ -120,4 +120,4 @@ namespace ipc {
 	};
 }
 
-#endif // API_MESSAGE_READER_HPP
+#endif // NANOPB_MESSAGE_READER_HPP
