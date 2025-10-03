@@ -2,3 +2,8 @@
 	path = googletest
 	url = https://github.com/google/googletest.git
 	tag = v1.17.0
+
+[submodule "ipc/nanopb/nanopb-src"]
+	path = ipc/nanopb/nanopb-src
+	url = https://github.com/nanopb/nanopb.git
+	tag = nanopb-0.4.9.1

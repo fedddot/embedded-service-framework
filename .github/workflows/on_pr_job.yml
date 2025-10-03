@@ -38,4 +38,4 @@ jobs:
     - name: run uts
       working-directory: ${{github.workspace}}
       run: |
-        docker run -i -v ${{github.workspace}}:${{env.CONTAINER_SRC_DIR}} -v ${{github.workspace}}/bin:${{env.CONTAINER_BIN_DIR}} esf-dev-image:latest -c "cmake --build ${{env.CONTAINER_BIN_DIR}} --target test"
+        docker run -i -v ${{github.workspace}}:${{env.CONTAINER_SRC_DIR}} -v ${{github.workspace}}/bin:${{env.CONTAINER_BIN_DIR}} -w ${{env.CONTAINER_BIN_DIR}} esf-dev-image:latest -c "ctest --rerun-failed --output-on-failure"
