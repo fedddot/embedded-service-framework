@@ -2,8 +2,8 @@
 #define	NANOPB_MESSAGE_WRITER_HPP
 
 /// @file nanopb_message_writer.hpp
-/// @brief Template class for encoding and writing API messages using Nanopb
-/// @details Provides a writer interface that combines API message serialization and package writing.
+/// @brief Template class for encoding and writing API messages using Nanopb lib
+/// @details Provides a writer interface that combines API message serialization and raw data package writing.
 /// The writer converts API messages to Nanopb format, encodes them using the Nanopb
 /// library, and writes the resulting binary data using a package writer.
 /// This abstraction handles all necessary memory management and protocol buffer lifecycle.
@@ -49,6 +49,12 @@ namespace ipc {
 		/// @brief Converter function from API messages to Nanopb messages
 		/// @details This function should implement the conversion logic from the high-level
 		///          API message type to the low-level Nanopb-generated type
+		///			 This function is responsible also for proper initialization of Nanopb message
+		///          structures:
+		///          - Setting up encode callbacks for dynamic fields
+		///          - Initializing message fields to their actual values
+		///          - Allocating necessary buffers for dynamic content
+		///          The exact initialization depends on the .proto file structure
 		using ApiMessageToNanoPbFunc = std::function<NanoPbMessage(const ApiMessage&)>;
 
 		/// @brief Function for cleaning up Nanopb message structures
