@@ -1,5 +1,5 @@
-#ifndef	motor_drive_SERVICE_HPP
-#define	motor_drive_SERVICE_HPP
+#ifndef	MOTOR_DRIVE_SERVICE_HPP
+#define	MOTOR_DRIVE_SERVICE_HPP
 
 #include <functional>
 #include <optional>
@@ -12,31 +12,31 @@
 
 namespace service {
 	template <typename RouteId, typename Payload>
-	class motor_driveService: public Service<motor_driveServiceApiRequest<RouteId, Payload>, motor_driveServiceApiResponse<RouteId, Payload>> {
+	class MotorDriveService: public Service<MotorDriveServiceApiRequest<RouteId, Payload>, MotorDriveServiceApiResponse<RouteId, Payload>> {
 	public:
 		using ApiRequestHandler = std::function<std::optional<Payload>(const Payload& request_payload)>;
-		motor_driveService() = default;
-		motor_driveService(const motor_driveService&) = delete;
-		motor_driveService& operator=(const motor_driveService&) = delete;
-		motor_driveServiceApiResponse<RouteId, Payload> run_api_request(const motor_driveServiceApiRequest<RouteId, Payload>& request) override {
+		MotorDriveService() = default;
+		MotorDriveService(const MotorDriveService&) = delete;
+		MotorDriveService& operator=(const MotorDriveService&) = delete;
+		MotorDriveServiceApiResponse<RouteId, Payload> run_api_request(const MotorDriveServiceApiRequest<RouteId, Payload>& request) override {
 			const auto handler_iter = m_route_handlers.find(request.route_id());
 			if (m_route_handlers.end() == handler_iter) {
-				return motor_driveServiceApiResponse<RouteId, Payload>(
-					motor_driveServiceApiResponse<RouteId, Payload>::Result::UNSUPPORTED_ROUTE,
+				return MotorDriveServiceApiResponse<RouteId, Payload>(
+					MotorDriveServiceApiResponse<RouteId, Payload>::Result::UNSUPPORTED_ROUTE,
 					request.route_id(),
 					std::nullopt
 				);
 			}
 			try {
 				const auto handler_response = handler_iter->second(request.payload());
-				return motor_driveServiceApiResponse<RouteId, Payload>(
-					motor_driveServiceApiResponse<RouteId, Payload>::Result::SUCCESS,
+				return MotorDriveServiceApiResponse<RouteId, Payload>(
+					MotorDriveServiceApiResponse<RouteId, Payload>::Result::SUCCESS,
 					request.route_id(),
 					handler_response
 				);
 			} catch (...) {
-				return motor_driveServiceApiResponse<RouteId, Payload>(
-					motor_driveServiceApiResponse<RouteId, Payload>::Result::UNEXPECTED_FAILURE,
+				return MotorDriveServiceApiResponse<RouteId, Payload>(
+					MotorDriveServiceApiResponse<RouteId, Payload>::Result::UNEXPECTED_FAILURE,
 					request.route_id(),
 					std::nullopt
 				);
@@ -53,4 +53,4 @@ namespace service {
 	};
 }
 
-#endif // motor_drive_SERVICE_HPP
+#endif // MOTOR_DRIVE_SERVICE_HPP

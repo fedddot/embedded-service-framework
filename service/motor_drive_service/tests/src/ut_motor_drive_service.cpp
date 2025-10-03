@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 
-#include "gateway_service.hpp"
-#include "gateway_service_api_request.hpp"
+#include "motor_drive_service.hpp"
+#include "motor_drive_service_api_request.hpp"
 
 using namespace service;
 
@@ -12,18 +12,18 @@ enum class TestRouteId {
 
 using TestPayload = std::string;
 
-TEST(ut_gateway_service, run_api_request_sanity) {
+TEST(ut_motor_drive_service, run_api_request_sanity) {
 	// GIVEN
 	const TestPayload request_payload("request_payload");
 	const TestPayload expected_response_payload("response_payload");
 	const TestRouteId route_id = TestRouteId::TEST_ROUTE_0;
-	const GatewayServiceApiRequest<TestRouteId, TestPayload> test_request(
+	const MotorDriveServiceApiRequest<TestRouteId, TestPayload> test_request(
 		route_id,
 		request_payload
 	);
 
 	// WHEN:
-	GatewayService<TestRouteId, TestPayload> service;
+	MotorDriveService<TestRouteId, TestPayload> service;
 	service.register_route_handler(
 		route_id,
 		[expected_request_payload = request_payload, expected_response_payload](const TestPayload& request_payload) {

@@ -1,17 +1,17 @@
-add_library(gateway_service_api_request INTERFACE)
-target_include_directories(gateway_service_api_request INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+add_library(motor_drive_service_api_request INTERFACE)
+target_include_directories(motor_drive_service_api_request INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 
-add_library(gateway_service_api_response INTERFACE)
-target_include_directories(gateway_service_api_response INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+add_library(motor_drive_service_api_response INTERFACE)
+target_include_directories(motor_drive_service_api_response INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 
-add_library(gateway_service INTERFACE)
-target_include_directories(gateway_service INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
+add_library(motor_drive_service INTERFACE)
+target_include_directories(motor_drive_service INTERFACE ${CMAKE_CURRENT_LIST_DIR}/include)
 target_link_libraries(
-    gateway_service
+    motor_drive_service
     INTERFACE
     service
-    gateway_service_api_request
-    gateway_service_api_response
+    motor_drive_service_api_request
+    motor_drive_service_api_response
 )
 
 if(BUILD_TESTS)
