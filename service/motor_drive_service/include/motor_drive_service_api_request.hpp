@@ -2,23 +2,28 @@
 #define	MOTOR_DRIVE_SERVICE_API_REQUEST_HPP
 
 #include <functional>
+#include <optional>
 
 namespace service {
-	template <typename RouteId, typename Payload>
 	class MotorDriveServiceApiRequest {
 	public:
+		enum class Type: int {
+			START,
+			STOP,
+			STATUS
+		};
 		MotorDriveServiceApiRequest(
-			const RouteId& route_id,
-			const Payload& payload
-		): m_route_id(route_id), m_payload(payload) {}
+			const Type& type,
+			const std::optional<double>& speed
+		): m_type(type), m_speed(speed) {}
 		MotorDriveServiceApiRequest(const MotorDriveServiceApiRequest&) = default;
 		MotorDriveServiceApiRequest& operator=(const MotorDriveServiceApiRequest&) = default;
 		virtual ~MotorDriveServiceApiRequest() noexcept = default;
-		const RouteId& route_id() const { return std::ref(m_route_id); }
-		const Payload& payload() const { return std::ref(m_payload); }
+		const Type& type() const { return std::ref(m_type); }
+		const std::optional<double>& speed() const { return std::ref(m_speed); }
 	private:
-		RouteId m_route_id;
-		Payload m_payload;
+		Type m_type;
+		std::optional<double> m_speed;
 	};
 }
 
