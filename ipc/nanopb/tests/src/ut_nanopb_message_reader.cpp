@@ -43,8 +43,8 @@ TEST(ut_nanopb_message_reader, read_sanity) {
 		pb_message.request.arg = new std::string();
 		return pb_message;
 	};
-	const auto deinit_pb_msg = [](test_api_TestRequest *pb_request) {
-		delete (std::string *)((pb_request->request).arg);
+	const auto deinit_pb_msg = [](test_api_TestRequest *pb_message) {
+		delete (std::string *)((pb_message->request).arg);
 	};
 
 	// WHEN

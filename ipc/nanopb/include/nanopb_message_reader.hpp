@@ -17,17 +17,17 @@ namespace ipc {
 	class NanopbMessageReader: public DataReader<std::optional<ApiMessage>> {
 	public:
 		using PackageReader = DataReader<std::optional<std::vector<std::uint8_t>>>;
+		using NanoPbToApiMessageFunc = std::function<ApiMessage(const NanoPbMessage&)>;
 		using NanoPbMessageInitFunc = std::function<NanoPbMessage()>;
 		using NanoPbMessageDeinitFunc = std::function<void(NanoPbMessage *)>;
-		using ApiMessageParser = std::function<ApiMessage(const NanoPbMessage&)>;
 		NanopbMessageReader(
 			PackageReader *package_reader_ptr,
-			const ApiMessageParser& message_parser,
+			const NanoPbToApiMessageFunc& nano_pb_to_api_msg,
 			const NanoPbMessageInitFunc& init_nanopb_message,
 			const NanoPbMessageDeinitFunc& deinit_nanopb_message,
 			const pb_msgdesc_t *nanopb_message_fields
-		): m_package_reader_ptr(package_reader_ptr), m_message_parser(message_parser), m_init_nanopb_message(init_nanopb_message), m_deinit_nanopb_message(deinit_nanopb_message), m_nanopb_message_fields(nanopb_message_fields) {
-			if (!m_package_reader_ptr || !m_message_parser || !m_init_nanopb_message || !m_deinit_nanopb_message || !m_nanopb_message_fields) {
+		): m_package_reader_ptr(package_reader_ptr), m_nano_pb_to_api_msg(nano_pb_to_api_msg), m_init_nanopb_message(init_nanopb_message), m_deinit_nanopb_message(deinit_nanopb_message), m_nanopb_message_fields(nanopb_message_fields) {
+			if (!m_package_reader_ptr || !m_nano_pb_to_api_msg || !m_init_nanopb_message || !m_deinit_nanopb_message || !m_nanopb_message_fields) {
 				throw std::invalid_argument("invalid args received");
 			}
 		}
@@ -43,13 +43,13 @@ namespace ipc {
 			if (!pb_decode(&stream, m_nanopb_message_fields, &pb_message)) {
                 throw std::runtime_error("failed to decode Nano PB message: " + std::string(PB_GET_ERROR(&stream)));
             }
-			const auto api_message(m_message_parser(pb_message));
+			const auto api_message(m_nano_pb_to_api_msg(pb_message));
 			m_deinit_nanopb_message(&pb_message);
 			return api_message;
 		}
 	private:
 		PackageReader *m_package_reader_ptr;
-		ApiMessageParser m_message_parser;
+		NanoPbToApiMessageFunc m_nano_pb_to_api_msg;
 		NanoPbMessageInitFunc m_init_nanopb_message;
 		NanoPbMessageDeinitFunc m_deinit_nanopb_message;
 		const pb_msgdesc_t *m_nanopb_message_fields;
