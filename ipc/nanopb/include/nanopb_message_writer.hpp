@@ -1,8 +1,8 @@
-#ifndef	API_MESSAGE_WRITER_HPP
-#define	API_MESSAGE_WRITER_HPP
+#ifndef	NANOPB_MESSAGE_WRITER_HPP
+#define	NANOPB_MESSAGE_WRITER_HPP
 
 /// @file nanopb_message_writer.hpp
-/// @brief Template class for encoding and writing protocol buffer messages using Nanopb
+/// @brief Template class for encoding and writing API messages using Nanopb
 /// @details Provides a writer interface that combines API message serialization and package writing.
 /// The writer converts API messages to Nanopb format, encodes them using the Nanopb
 /// library, and writes the resulting binary data using a package writer.
@@ -104,4 +104,4 @@ namespace ipc {
 	};
 }
 
-#endif // API_MESSAGE_WRITER_HPP
+#endif // NANOPB_MESSAGE_WRITER_HPP
