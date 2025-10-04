@@ -5,29 +5,25 @@
 #include <optional>
 
 namespace service {
-	template <typename RouteId, typename Payload>
+	template <typename Status>
 	class MotorDriveServiceApiResponse {
 	public:
 		enum class Result: int {
 			SUCCESS = 0,
-			UNSUPPORTED_ROUTE = 1,
-			UNEXPECTED_FAILURE = 2
+			FAILURE = 1
 		};
 		MotorDriveServiceApiResponse(
 			const Result& result,
-			const RouteId& route_id,
-			const std::optional<Payload>& payload
-		): m_result(result), m_route_id(route_id), m_payload(payload) {}
+			const std::optional<Status>& status
+		): m_result(result), m_status(status) {}
 		MotorDriveServiceApiResponse(const MotorDriveServiceApiResponse&) = default;
 		MotorDriveServiceApiResponse& operator=(const MotorDriveServiceApiResponse&) = default;
 		virtual ~MotorDriveServiceApiResponse() noexcept = default;
 		const Result& result() const { return std::ref(m_result); }
-		const RouteId& route_id() const { return std::ref(m_route_id); }
-		const std::optional<Payload>& payload() const { return std::ref(m_payload); }
+		const std::optional<Status>& status() const { return std::ref(m_status); }
 	private:
 		Result m_result;
-		RouteId m_route_id;
-		std::optional<Payload> m_payload;
+		std::optional<Status> m_status;
 	};
 }
 
