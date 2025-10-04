@@ -4,6 +4,8 @@
 #include <functional>
 #include <optional>
 
+#include "motor_drive_service_types.hpp"
+
 namespace service {
 	class MotorDriveServiceApiRequest {
 	public:
@@ -11,10 +13,6 @@ namespace service {
 			START,
 			STOP,
 			STATUS
-		};
-		enum class Direction: int {
-			CW,
-			CCW
 		};
 		MotorDriveServiceApiRequest(
 			const Type& type,
